@@ -14,7 +14,7 @@ module PomPomPom
     describe '#parse!' do
       context 'when parsing a file' do
         before do
-          @example_pom_path = File.expand_path('../../resources/example.pom', __FILE__)
+          @example_pom_path = File.expand_path('../../resources/repository/com/rabbitmq/amqp-client/1.8.0/amqp-client-1.8.0.pom', __FILE__)
           @pom = File.open(@example_pom_path, 'r') do |f|
             pom = Pom.new(f)
             pom.parse!
