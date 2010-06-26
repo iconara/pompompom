@@ -1,19 +1,19 @@
 module PomPomPom
   class Resolver
+    class JarNotFoundError < StandardError; end
+    class DependencyNotFoundError < StandardError; end
+    
     def initialize(dependencies, repositories)
       @dependencies, @repositories = dependencies, repositories
+      raise ArgumentError, 'No repositories given!' if repositories.nil? || repositories.empty?
     end
     
     def download!(target_dir, downloader=Downloader.new)
       Dir.mkdir(target_dir)
       resolver = PomResolver.new(@dependencies, @repositories, downloader)
       resolver.all_poms.each do |pom|
-        JarDownloader.new(
-          pom,
-          File.join(target_dir, "#{pom.artifact_id}-#{pom.version}.jar"),
-          @repositories,
-          downloader
-        ).download!
+        destination = File.join(target_dir, "#{pom.artifact_id}-#{pom.version}.jar")
+        JarDownloader.new(pom, destination, @repositories, downloader).download!
       end
     end
     
@@ -36,7 +36,7 @@ module PomPomPom
           pom = get_pom(repository, dependency)
           pom
         end
-        raise "Could not find POM for #{dependency}" unless pom
+        raise DependencyNotFoundError, "Could not find POM for #{dependency} in any repository" unless pom
         [pom] + (pom.dependencies.map { |d| resolve_dependencies(d) })
       end
       
@@ -65,7 +65,7 @@ module PomPomPom
           data = @downloader.get(url)
           data
         end
-        raise "Could not download JAR for #{dependency}" unless data
+        raise JarNotFoundError, "Could not download JAR for #{dependency} in any repository" unless data
         File.open(@local_path, 'w') { |f| f.write(data) }
       end
     end
