@@ -1,0 +1,25 @@
+# Pom Pom Pom
+
+Pom Pom Pom is a basic dependency manager for Maven repository artifacts.
+
+The following code would download `amqp-client-1.8.0.jar` and its dependencies, `commons-cli-1.1.jar` and `commons-io-1.1.jar`, to the directory `lib`:
+
+    dependencies = [Dependency.new('com.rabbitmq', 'amqp-client', '1.8.0')]
+    repositories = %w(http://repo1.maven.org/maven2)
+    resolver = Resolver.new(dependencies, repositories)
+    resolver.download('lib')
+    
+There will be less verbose ways of doing this in the future. The goal is to be able to use this with rake, like this:
+
+    task :dependencies do
+      pompompom :artifacts => %w(com.rabbitmq:amqp-client:1.8.0)
+    end
+    
+Which would do the same as the code above.
+
+## Why another dependency management tool, why not use Maven, Buildr, sbt or Ivy?
+
+Every time I look at Maven I cringe. Buildr is almost as bad, but hides some of the complexity. Ivy is better, but still too much noisy XML.
+
+Pom Pom Pom is meant to do more or less what Ivy does, but in a way that doesn't want to make you tear out your eyes.
+
