@@ -28,6 +28,14 @@ module PomPomPom
       optional
     end
     
+    def eql?(o)
+      o.to_s == to_s
+    end
+    
+    def hash
+      to_s.hash
+    end
+    
     def to_s
       "#{group_id}:#{artifact_id}:#{version}"
     end

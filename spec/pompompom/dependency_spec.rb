@@ -32,7 +32,33 @@ module PomPomPom
         s.should == 'net.iconara:pompompom:1.0'
       end
     end
-    
+
+    describe '#eql?' do
+      it 'is equal to another dependency with the same group ID, artifact ID and version' do
+        d1 = Dependency.new('net.iconara', 'pompompom', '1.0')
+        d2 = Dependency.new('net.iconara', 'pompompom', '1.0')
+        d1.should == d2
+      end
+
+      it 'is not equal to another dependency with another version' do
+        d1 = Dependency.new('net.iconara', 'pompompom', '1.0')
+        d2 = Dependency.new('net.iconara', 'pompompom', '1.1')
+        d1.should_not == d2
+      end
+
+      it 'is not equal to another dependency with another group ID' do
+        d1 = Dependency.new('net.iconara', 'pompompom', '1.0')
+        d2 = Dependency.new('com.example', 'pompompom', '1.0')
+        d1.should_not == d2
+      end
+
+      it 'is not equal to another dependency with another artifact ID' do
+        d1 = Dependency.new('net.iconara', 'pompompom', '1.0')
+        d2 = Dependency.new('net.iconara', 'mopmopmop', '1.0')
+        d1.should_not == d2
+      end
+    end
+
     describe '.parse' do
       it 'parses a Maven coordinate' do
         d = Dependency.parse('net.iconara:pompompom:1.0')
