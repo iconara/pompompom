@@ -29,7 +29,45 @@ module PomPomPom
     describe '#to_s' do
       it 'returns the Maven artifact descriptor' do
         s = Dependency.new('net.iconara', 'pompompom', '1.0').to_s
-        s.should == 'net.iconara:pompompom:jar:1.0'
+        s.should == 'net.iconara:pompompom:1.0'
+      end
+    end
+    
+    describe '.parse' do
+      it 'parses a Maven coordinate' do
+        d = Dependency.parse('net.iconara:pompompom:1.0')
+        d.group_id.should == 'net.iconara'
+        d.artifact_id.should == 'pompompom'
+        d.version.should == '1.0'
+      end
+      
+      it 'parses a Maven coordinate with packaging label' do
+        d = Dependency.parse('net.iconara:pompompom:jar:1.0')
+        d.group_id.should == 'net.iconara'
+        d.artifact_id.should == 'pompompom'
+        d.version.should == '1.0'
+        d.packaging.should == 'jar'
+      end
+      
+      it 'parses a Maven coordinate with packaging label and classifier' do
+        d = Dependency.parse('net.iconara:pompompom:ear:xyz:1.0')
+        d.group_id.should == 'net.iconara'
+        d.artifact_id.should == 'pompompom'
+        d.version.should == '1.0'
+        d.packaging.should == 'ear'
+        d.classifier.should == 'xyz'
+      end
+      
+      it 'raises an exception if the coordinate is malformed' do
+        expect { Dependency.parse('net.iconara:pompompom') }.to raise_error
+      end
+
+      it 'raises an exception if the coordinate is empty' do
+        expect { Dependency.parse('') }.to raise_error
+      end
+
+      it 'raises an exception if the coordinate is nil' do
+        expect { Dependency.parse('') }.to raise_error
       end
     end
   end
