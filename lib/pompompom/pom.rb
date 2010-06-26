@@ -24,6 +24,16 @@ module PomPomPom
       @dependencies.fetch(scope, []).dup
     end
     
+    def to_dependency
+      Dependency.new(
+        :group_id => group_id,
+        :artifact_id => artifact_id, 
+        :version => version, 
+        :packaging => packaging,
+        :dependencies => dependencies
+      )
+    end
+    
   private
 
     def snake_caseify(str)
@@ -44,14 +54,33 @@ module PomPomPom
 
     def parse_dependencies!
       @doc.search('/project/dependencies/dependency').each do |dep_node|
-        scope = dep_node.at('scope/text()').to_s
-        scope = 'default' if scope.nil? || scope.strip.length == 0
-        scope = scope.to_sym
+        scope = parse_scope(dep_node)
         @dependencies[scope] ||= []
         @dependencies[scope] << Dependency.new(
-          dep_node.at('groupId/text()').to_s,
-          dep_node.at('artifactId/text()').to_s,
-          dep_node.at('version/text()').to_s
+          :group_id => parse_attr(dep_node, 'groupId'),
+          :artifact_id => parse_attr(dep_node, 'artifactId'),
+          :version => parse_attr(dep_node, 'version'),
+          :optional => parse_attr(dep_node, 'optional').downcase == 'true',
+          :exclusions => parse_exclusions(dep_node)
+        )
+      end
+    end
+    
+    def parse_attr(dep_node, attr_name)
+      dep_node.at("#{attr_name}/text()").to_s
+    end
+    
+    def parse_scope(dep_node)
+      scope = parse_attr(dep_node, 'scope')
+      scope = 'default' if scope.nil? || scope.strip.length == 0
+      scope.to_sym
+    end
+    
+    def parse_exclusions(dep_node)
+      dep_node.search('exclusions/exclusion').map do |excl_node|
+        Dependency.new(
+          parse_attr(excl_node, 'groupId'),
+          parse_attr(excl_node, 'artifactId')
         )
       end
     end

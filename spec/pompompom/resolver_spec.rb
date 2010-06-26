@@ -34,6 +34,32 @@ module PomPomPom
           end
         end
       end
+
+      context 'with exclusions' do
+        before do
+          @dependency = Dependency.new('com.example', 'test-exclusions', '1.0')
+          @resolver = Resolver.new([@dependency], [@repository_path])
+          @resolver.download!(@tmp_dir, FilesystemDownloader.new)
+        end
+        
+        it 'honors exclusions' do
+          files = Dir[@tmp_dir + '/*.jar'].map { |f| File.basename(f) }.sort
+          files.should == %w(amqp-client-1.8.0.jar commons-io-1.2.jar test-exclusions-1.0.jar)
+        end
+      end
+      
+      context 'with optionals' do
+        before do
+          @dependency = Dependency.new('com.example', 'test-optional', '1.0')
+          @resolver = Resolver.new([@dependency], [@repository_path])
+          @resolver.download!(@tmp_dir, FilesystemDownloader.new)
+        end
+        
+        it 'doesn\'t download optional dependencies' do
+          files = Dir[@tmp_dir + '/*.jar'].map { |f| File.basename(f) }.sort
+          files.should == %w(test-optional-1.0.jar)
+        end
+      end
       
       context 'logging' do
         before do

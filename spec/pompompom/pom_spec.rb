@@ -48,6 +48,38 @@ module PomPomPom
           dep.should_not be_empty
         end
       end
+
+      context 'with exclusions' do
+        before do
+          @example_pom_path = File.expand_path('../../resources/repository/com/example/test-exclusions/1.0/test-exclusions-1.0.pom', __FILE__)
+          @pom = File.open(@example_pom_path, 'r') do |f|
+            pom = Pom.new(f)
+            pom.parse!
+            pom
+          end
+        end
+        
+        it 'finds exclusions' do
+          d = @pom.dependencies.first
+          d.exclusions.first.artifact_id.should == 'commons-cli'
+        end
+      end
+
+      context 'with optional' do
+        before do
+          @example_pom_path = File.expand_path('../../resources/repository/com/example/test-optional/1.0/test-optional-1.0.pom', __FILE__)
+          @pom = File.open(@example_pom_path, 'r') do |f|
+            pom = Pom.new(f)
+            pom.parse!
+            pom
+          end
+        end
+        
+        it 'finds exclusions' do
+          d = @pom.dependencies.first
+          d.should be_optional
+        end
+      end
     end
   end
 end

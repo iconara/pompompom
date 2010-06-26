@@ -41,7 +41,10 @@ module PomPomPom
           pom
         end
         raise DependencyNotFoundError, "Could not find POM for #{dependency} in any repository" unless pom
-        [pom] + (pom.dependencies.map { |d| resolve_dependencies(d) })
+        transitive_dependencies = pom.dependencies.reject do |d|
+          d.optional? || dependency.exclusions.any? { |dd| dd.artifact_id == d.artifact_id }
+        end
+        [pom] + transitive_dependencies.map { |d| resolve_dependencies(d) }
       end
       
       def get_pom(repository, dependency)
@@ -71,7 +74,7 @@ module PomPomPom
           data = @downloader.get(url)
           data
         end
-        raise JarNotFoundError, "Could not download JAR for #{dependency} in any repository" unless data
+        raise JarNotFoundError, "Could not download JAR for #{@pom.to_dependency} in any repository" unless data
         File.open(@local_path, 'w') { |f| f.write(data) }
       end
     end

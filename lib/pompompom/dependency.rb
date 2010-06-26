@@ -2,7 +2,7 @@ require 'immutable_struct'
 
 
 module PomPomPom
-  class Dependency < ImmutableStruct.new(:group_id, :artifact_id, :version, :packaging, :classifier)
+  class Dependency < ImmutableStruct.new(:group_id, :artifact_id, :version, :packaging, :classifier, :optional, :exclusions)
     include UrlBuilder
     
     def self.parse(artifact_coordinates)
@@ -18,6 +18,14 @@ module PomPomPom
         group_id, artifact_id, packaging, classifier, version = components
       end
       Dependency.new(group_id, artifact_id, version, packaging, classifier)
+    end
+    
+    def exclusions
+      self[:exclusions] || []
+    end
+    
+    def optional?
+      optional
     end
     
     def to_s
