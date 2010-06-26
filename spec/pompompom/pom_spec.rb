@@ -1,10 +1,15 @@
 require File.expand_path('../../spec_helper', __FILE__)
+require File.expand_path('../url_builders_shared', __FILE__)
 
 
 module PomPomPom
   describe Pom do
+    it_should_behave_like 'an URL builder'
+    
     before do
       @example_pom_path = File.expand_path('../../resources/example.pom', __FILE__)
+      @url_builder = Pom.new(StringIO.new('<project><groupId>net.iconara</groupId><artifactId>pompompom</artifactId><version>1.0</version><packaging>jar</packaging></project>'))
+      @url_builder.parse!
     end
   
     describe '#parse!' do

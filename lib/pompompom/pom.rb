@@ -3,6 +3,8 @@ require 'hpricot'
 
 module PomPomPom
   class Pom
+    include UrlBuilder
+    
     PROPERTIES = [:group_id, :artifact_id, :version, :name, :description, :url, :model_version, :packaging]
     
     attr_reader *PROPERTIES

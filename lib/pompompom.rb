@@ -1,3 +1,4 @@
+require 'pompompom/url_builder'
 require 'pompompom/pom'
 require 'pompompom/dependency'
 require 'pompompom/resolver'
