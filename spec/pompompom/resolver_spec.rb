@@ -35,6 +35,24 @@ module PomPomPom
         end
       end
       
+      context 'logging' do
+        before do
+          @dependency = Dependency.new('com.rabbitmq', 'amqp-client', '1.8.0')
+          @logger = double()
+          @resolver = Resolver.new([@dependency], [@repository_path], :logger => @logger)
+        end
+        
+        it 'logs each downloaded URL' do
+          @logger.should_receive(:info).with(%(Loading POM from "#{@repository_path}/com/rabbitmq/amqp-client/1.8.0/amqp-client-1.8.0.pom"))
+          @logger.should_receive(:info).with(%(Loading JAR from "#{@repository_path}/com/rabbitmq/amqp-client/1.8.0/amqp-client-1.8.0.jar"))
+          @logger.should_receive(:info).with(%(Loading POM from "#{@repository_path}/commons-cli/commons-cli/1.1/commons-cli-1.1.pom"))
+          @logger.should_receive(:info).with(%(Loading JAR from "#{@repository_path}/commons-cli/commons-cli/1.1/commons-cli-1.1.jar"))
+          @logger.should_receive(:info).with(%(Loading POM from "#{@repository_path}/commons-io/commons-io/1.2/commons-io-1.2.pom"))
+          @logger.should_receive(:info).with(%(Loading JAR from "#{@repository_path}/commons-io/commons-io/1.2/commons-io-1.2.jar"))
+          @resolver.download!(@tmp_dir, FilesystemDownloader.new)
+        end
+      end
+
       it 'raises an error if a dependency cannot be met' do
         r = Resolver.new([Dependency.new('net.iconara', 'pompompom', '1.0')], [@repository_path])
         expect { r.download!(@tmp_dir, FilesystemDownloader.new) }.to raise_error(Resolver::DependencyNotFoundError)
