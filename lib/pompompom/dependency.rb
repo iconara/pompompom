@@ -28,12 +28,20 @@ module PomPomPom
       optional
     end
     
+    def any_version?
+      version.nil?
+    end
+    
     def eql?(o)
       o.to_s == to_s
     end
     
     def hash
       to_s.hash
+    end
+    
+    def clone(overrides={})
+      self.class.new(self.to_h.merge(overrides))
     end
     
     def to_s

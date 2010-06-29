@@ -20,7 +20,14 @@ shared_examples_for 'an URL builder' do
   
   describe '#jar_file_name' do
     it 'returns <artifact_id>-<version>.jar' do
-      @url_builder.jar_file_name.should match(/^[-_\w\d]+-[\d.]{1,5}\.jar$/)
+      @url_builder.jar_file_name.should == 'pompompom-1.0.jar'
+    end
+  end
+  
+  describe '#metadata_url' do
+    it 'returns the URL for the artifact metadata file' do
+      url = @url_builder.metadata_url('http://example.com')
+      url.should == "http://example.com/net/iconara/pompompom/maven-metadata.xml"
     end
   end
 end

@@ -67,7 +67,7 @@ module PomPomPom
         @dependencies[scope] << Dependency.new(
           :group_id => parse_attr(dep_node, 'groupId'),
           :artifact_id => parse_attr(dep_node, 'artifactId'),
-          :version => parse_attr(dep_node, 'version'),
+          :version => parse_version(dep_node),
           :optional => parse_attr(dep_node, 'optional').downcase == 'true',
           :exclusions => parse_exclusions(dep_node)
         )
@@ -75,7 +75,12 @@ module PomPomPom
     end
     
     def parse_attr(dep_node, attr_name)
-      dep_node.at("#{attr_name}/text()").to_s
+      str = dep_node.at("#{attr_name}/text()").to_s
+    end
+    
+    def parse_version(dep_node)
+      v = parse_attr(dep_node, 'version')
+      if v.length == 0 then nil else v end
     end
     
     def parse_scope(dep_node)

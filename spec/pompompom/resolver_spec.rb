@@ -55,25 +55,6 @@ module PomPomPom
           end
         end
       end
-      
-      context 'multiple versions' do
-        before do
-          @logger = stub(:info => nil, :warn => nil)
-          @dependencies = %w(com.example:test-abc:1.0 com.example:test-def:1.0).map { |d| Dependency.parse(d) }
-          @resolver = Resolver.new([@repository_path], :downloader => FilesystemDownloader.new, :logger => @logger)
-        end
-        
-        it 'selects the newest dependency if more than one of the same are found' do
-          @all_dependencies = @resolver.find_transitive_dependencies(*@dependencies)
-          @all_dependencies.map(&:to_s).should include('com.example:test:9.9')
-          @all_dependencies.map(&:to_s).should_not include('com.example:test:8.8')
-        end
-        
-        it 'warns if dependencies on multiple versions of an artifact are found' do
-          @logger.should_receive(:warn).with('Warning: multiple versions of com.example:test were required, using the newest required version (9.9)')
-          @resolver.find_transitive_dependencies(*@dependencies)
-        end
-      end
 
       context 'with exclusions' do
         before do
@@ -109,12 +90,12 @@ module PomPomPom
         end
         
         it 'logs each downloaded URL' do
-          @logger.should_receive(:info).with(%(Loading POM from "#{@repository_path}/com/rabbitmq/amqp-client/1.8.0/amqp-client-1.8.0.pom"))
-          @logger.should_receive(:info).with(%(Loading JAR from "#{@repository_path}/com/rabbitmq/amqp-client/1.8.0/amqp-client-1.8.0.jar"))
-          @logger.should_receive(:info).with(%(Loading POM from "#{@repository_path}/commons-cli/commons-cli/1.1/commons-cli-1.1.pom"))
-          @logger.should_receive(:info).with(%(Loading JAR from "#{@repository_path}/commons-cli/commons-cli/1.1/commons-cli-1.1.jar"))
-          @logger.should_receive(:info).with(%(Loading POM from "#{@repository_path}/commons-io/commons-io/1.2/commons-io-1.2.pom"))
-          @logger.should_receive(:info).with(%(Loading JAR from "#{@repository_path}/commons-io/commons-io/1.2/commons-io-1.2.jar"))
+          @logger.should_receive(:debug).with(%(Loading POM from "#{@repository_path}/com/rabbitmq/amqp-client/1.8.0/amqp-client-1.8.0.pom"))
+          @logger.should_receive(:debug).with(%(Loading JAR from "#{@repository_path}/com/rabbitmq/amqp-client/1.8.0/amqp-client-1.8.0.jar"))
+          @logger.should_receive(:debug).with(%(Loading POM from "#{@repository_path}/commons-cli/commons-cli/1.1/commons-cli-1.1.pom"))
+          @logger.should_receive(:debug).with(%(Loading JAR from "#{@repository_path}/commons-cli/commons-cli/1.1/commons-cli-1.1.jar"))
+          @logger.should_receive(:debug).with(%(Loading POM from "#{@repository_path}/commons-io/commons-io/1.2/commons-io-1.2.pom"))
+          @logger.should_receive(:debug).with(%(Loading JAR from "#{@repository_path}/commons-io/commons-io/1.2/commons-io-1.2.jar"))
           @resolver.download!(@tmp_dir, true, @dependency)
         end
       end
@@ -153,6 +134,30 @@ module PomPomPom
         all_coordinates.should include('com.rabbitmq:amqp-client:1.8.0')
         all_coordinates.should include('commons-io:commons-io:1.2')
         all_coordinates.should include('commons-cli:commons-cli:1.1')
+      end
+      
+      context 'with multiple versions' do
+        before do
+          @logger = stub(:debug => nil, :info => nil, :warn => nil)
+          @dependencies = %w(com.example:test-abc:1.0 com.example:test-def:1.0).map { |d| Dependency.parse(d) }
+          @resolver = Resolver.new([@repository_path], :downloader => FilesystemDownloader.new, :logger => @logger)
+        end
+        
+        it 'selects the newest dependency if more than one of the same are found' do
+          @all_dependencies = @resolver.find_transitive_dependencies(*@dependencies)
+          @all_dependencies.map(&:to_s).should include('com.example:test:9.9')
+          @all_dependencies.map(&:to_s).should_not include('com.example:test:8.8')
+        end
+        
+        it 'determines the newest if no version was specified' do
+          @all_dependencies = @resolver.find_transitive_dependencies(Dependency.parse('com.google.inject:guice:2.0'))
+          @all_dependencies.map(&:to_s).should include('aopalliance:aopalliance:1.0')
+        end
+        
+        it 'warns if dependencies on multiple versions of an artifact are found' do
+          @logger.should_receive(:warn).with('Warning: multiple versions of com.example:test were required, using the newest required version (9.9)')
+          @resolver.find_transitive_dependencies(*@dependencies)
+        end
       end
     end
   end

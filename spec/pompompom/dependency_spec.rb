@@ -96,5 +96,35 @@ module PomPomPom
         expect { Dependency.parse('') }.to raise_error
       end
     end
+
+    describe '#any_version?' do
+      it 'is true if version is unspecified' do
+        d = Dependency.new(:group_id => 'com.example', :artifact_id => 'test')
+        d.any_version?.should be_true
+      end
+      
+      it 'is false if version is set' do
+        d = Dependency.new(:group_id => 'com.example', :artifact_id => 'test', :version => '0.0.1')
+        d.any_version?.should be_false
+      end
+    end
+    
+    describe '#clone' do
+      it 'creates an identical copy' do
+        d1 = Dependency.new(:group_id => 'com.example', :artifact_id => 'test', :version => '0.0.1')
+        d2 = d1.clone
+        d1.should == d2
+      end
+      
+      it 'creates an identical copy, save for overridden properties' do
+        d1 = Dependency.new(:group_id => 'com.example', :artifact_id => 'test', :version => '0.0.1', :classifier => 'foo')
+        d2 = d1.clone(:version => '1.0.0')
+        d1.should_not == d2
+        d2.group_id.should == 'com.example'
+        d2.artifact_id.should == 'test'
+        d2.classifier.should == 'foo'
+        d2.version.should == '1.0.0'
+      end
+    end
   end
 end

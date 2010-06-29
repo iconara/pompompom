@@ -78,7 +78,12 @@ module PomPomPom
       def resolve_dependencies(dependency)
         pom = nil
         @repositories.detect do |repository|
-          pom = get_pom(repository, dependency)
+          if dependency.any_version?
+            d = find_latest(dependency, repository)
+          else
+            d = dependency
+          end
+          pom = get_pom(repository, d)
           pom
         end
         raise DependencyNotFoundError, "Could not find POM for #{dependency} in any repository" unless pom
@@ -88,9 +93,16 @@ module PomPomPom
         [pom] + transitive_dependencies.map { |d| resolve_dependencies(d) }
       end
       
+      def find_latest(dependency, repository)
+        @logger.info(%(Finding latest version for #{dependency.group_id}:#{dependency.artifact_id}))
+        metadata = Metadata.new(@downloader.get(dependency.metadata_url(repository)))
+        metadata.parse!
+        dependency.clone(:version => metadata.latest_version)
+      end
+      
       def get_pom(repository, dependency)
         url = dependency.pom_url(repository)
-        @logger.info(%(Loading POM from "#{url}"))
+        @logger.debug(%(Loading POM from "#{url}"))
         data = @downloader.get(url)
         if data
           pom = Pom.new(StringIO.new(data))
@@ -111,7 +123,7 @@ module PomPomPom
         data = nil
         @repositories.detect do |repository|
           url = @pom.jar_url(repository)
-          @logger.info(%(Loading JAR from "#{url}"))
+          @logger.debug(%(Loading JAR from "#{url}"))
           data = @downloader.get(url)
           data
         end

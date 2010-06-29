@@ -1,5 +1,6 @@
 require 'pompompom/url_builder'
-require 'pompompom/pom'
+require 'pompompom/metadata'
 require 'pompompom/dependency'
-require 'pompompom/resolver'
+require 'pompompom/pom'
 require 'pompompom/downloader'
+require 'pompompom/resolver'
