@@ -55,6 +55,25 @@ module PomPomPom
           end
         end
       end
+      
+      context 'multiple versions' do
+        before do
+          @logger = stub(:info => nil, :warn => nil)
+          @dependencies = %w(com.example:test-abc:1.0 com.example:test-def:1.0).map { |d| Dependency.parse(d) }
+          @resolver = Resolver.new([@repository_path], :downloader => FilesystemDownloader.new, :logger => @logger)
+        end
+        
+        it 'selects the newest dependency if more than one of the same are found' do
+          @all_dependencies = @resolver.find_transitive_dependencies(*@dependencies)
+          @all_dependencies.map(&:to_s).should include('com.example:test:9.9')
+          @all_dependencies.map(&:to_s).should_not include('com.example:test:8.8')
+        end
+        
+        it 'warns if dependencies on multiple versions of an artifact are found' do
+          @logger.should_receive(:warn).with('Warning: multiple versions of com.example:test were required, using the newest required version (9.9)')
+          @resolver.find_transitive_dependencies(*@dependencies)
+        end
+      end
 
       context 'with exclusions' do
         before do

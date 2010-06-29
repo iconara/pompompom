@@ -19,13 +19,31 @@ module PomPomPom
     
     def find_transitive_dependencies(*dependencies)
       resolver = PomResolver.new(dependencies, @repositories, @downloader, @logger)
-      resolver.all_poms.inject({}) do |acc, pom|
-        acc[pom.to_dependency] = pom
-        acc
-      end.values
+      filter_newest(group_by_artifact(resolver.all_poms))
     end
     
   private
+  
+    def filter_newest(pom_groups)
+      pom_groups.map do |id, poms|
+        if poms.size > 1
+          newest = poms.sort { |a, b| a.version <=> b.version }.reverse.first
+          @logger.warn(%(Warning: multiple versions of #{id} were required, using the newest required version (#{newest.version})))
+          newest
+        else
+          poms.first
+        end
+      end.flatten
+    end
+  
+    def group_by_artifact(poms)
+      poms.inject({}) do |acc, pom|
+        id = "#{pom.group_id}:#{pom.artifact_id}"
+        acc[id] ||= []
+        acc[id] << pom
+        acc
+      end
+    end
   
     def create_target_directory(target_dir)
       return if File.directory?(target_dir)
@@ -41,7 +59,9 @@ module PomPomPom
     end
   
     class NullLogger
+      def debug(msg); end
       def info(msg); end
+      def warn(msg); end
     end
   
     class PomResolver
