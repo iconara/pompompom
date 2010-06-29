@@ -15,9 +15,9 @@ module PomPomPom
     end
 
     def parse!
-      @doc = Hpricot.XML(@io)
-      parse_meta!
-      parse_dependencies!
+      doc = Hpricot.XML(@io)
+      parse_meta!(doc)
+      parse_dependencies!(doc)
     end
     
     def dependencies(scope = :default)
@@ -38,6 +38,10 @@ module PomPomPom
       )
     end
     
+    def to_s
+      to_dependency.to_s
+    end
+    
   private
 
     def snake_caseify(str)
@@ -49,15 +53,15 @@ module PomPomPom
       end
     end
 
-    def parse_meta!
+    def parse_meta!(doc)
       properties = PROPERTIES.map { |p| [p.to_s, snake_caseify(p.to_s)] }
       properties.each do |property, tag_name|
-        instance_variable_set('@' + property, @doc.at("/project/#{tag_name}/text()").to_s)
+        instance_variable_set('@' + property, doc.at("/project/#{tag_name}/text()").to_s)
       end
     end
 
-    def parse_dependencies!
-      @doc.search('/project/dependencies/dependency').each do |dep_node|
+    def parse_dependencies!(doc)
+      doc.search('/project/dependencies/dependency').each do |dep_node|
         scope = parse_scope(dep_node)
         @dependencies[scope] ||= []
         @dependencies[scope] << Dependency.new(
