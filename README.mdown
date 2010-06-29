@@ -17,6 +17,12 @@ There will be less verbose ways of doing this in the future. The goal is to be a
     
 Which would do the same as the code above.
 
+There is a command line tool that can be used to install artifacts:
+
+    pompompom com.rabbitmq:amqp-client:1.8.0 com.google.inject:guice:2.0
+    
+It will create a directory called `lib` and download JARs into it. In the future things may be configurable, and POMs will be cached to make things quicker.
+
 ## Why another dependency management tool, why not use Maven, Buildr, sbt or Ivy?
 
 Every time I look at Maven I cringe. Buildr is almost as bad, but hides some of the complexity. Ivy is better, but still too much noisy XML.
