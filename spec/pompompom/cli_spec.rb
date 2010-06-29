@@ -30,26 +30,42 @@ module PomPomPom
       @stderr.string.should include('Usage: pompompom <group_id:artifact_id:version> [<group_id:artifact_id:version>]')
     end
     
+    it 'returns 1 if no arguments given' do
+      @cli.run!.should == 1
+    end
+    
     it 'installs any artifacts mentioned on the command line' do
       @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
-      @stdout.string.should include('Determining transitive dependencies...')
-      @stdout.string.should include('Downloading "net.iconara:pompompom:1.0"')
-      @stdout.string.should include('Downloading "com.example:test:9.9"')
+      @stderr.string.should include('Determining transitive dependencies...')
+      @stderr.string.should include('Downloading "net.iconara:pompompom:1.0"')
+      @stderr.string.should include('Downloading "com.example:test:9.9"')
     end
     
-    it 'does not download artifacts have already been downlowed' do
-      FileUtils.mkdir('lib')
-      FileUtils.touch(File.join('lib', 'pompompom-1.0.jar'))
-      @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
-      @stdout.string.should_not include('Downloading "net.iconara:pompompom:1.0"')
+    it 'returns 0 if all goes well' do
+      @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9').should == 0
     end
     
-    it 'warns if no dependencies will be downloaded' do
-      FileUtils.mkdir('lib')
-      FileUtils.touch(File.join('lib', 'pompompom-1.0.jar'))
-      FileUtils.touch(File.join('lib', 'test-9.9.jar'))
-      @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
-      @stdout.string.should include('All dependencies are met')
+    context 'when artifacts have already been downloaded' do
+      before do
+        FileUtils.mkdir('lib')
+        FileUtils.touch(File.join('lib', 'pompompom-1.0.jar'))
+      end
+      
+      it 'does not download them again' do
+        @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
+        @stderr.string.should_not include('Downloading "net.iconara:pompompom:1.0"')
+      end
+      
+      it 'warns if none will be downloaded' do
+        FileUtils.touch(File.join('lib', 'test-9.9.jar'))
+        @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
+        @stderr.string.should include('All dependencies are met')
+      end
+      
+      it 'returns 0' do
+        FileUtils.touch(File.join('lib', 'test-9.9.jar'))
+        @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9').should == 0
+      end
     end
     
     it 'complains about malformed artifact coordinates' do
@@ -57,11 +73,21 @@ module PomPomPom
       @stderr.string.should include('Warning: "foobar" is not a valid artifact coordinate')
     end
     
-    it 'complains if "lib" exists but is not a directory' do
-      @cli = Cli.new(@stdin, @stdout, @stderr)
-      @cli.stub!(:create_resolver).and_return(@resolver)
-      FileUtils.touch(File.join(@tmp_dir, 'lib'))
-      expect { @cli.run!('com.example:test:9.9') }.to raise_error('Cannot create destination, "lib" is a file!')
+    context 'when "lib" exists but is not a directory' do
+      before do
+        @cli = Cli.new(@stdin, @stdout, @stderr)
+        @cli.stub!(:create_resolver).and_return(@resolver)
+        FileUtils.touch(File.join(@tmp_dir, 'lib'))
+      end
+      
+      it 'complains' do
+        @cli.run!('com.example:test:9.9')
+        @stderr.string.should include('Warning: Cannot create destination, "lib" is a file!')
+      end
+      
+      it 'returns 1' do
+        @cli.run!('com.example:test:9.9').should == 1
+      end
     end
   end
 end

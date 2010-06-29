@@ -8,33 +8,38 @@ module PomPomPom
     
     def initialize(stdin, stdout, stderr)
       @stdin, @stdout, @stderr = stdin, stdout, stderr
+      @status_logger = EchoLogger.new(@stderr)
     end
     
     def run!(*args)
       if args.empty?
         print_usage
-        1
+        return 1
+      end
+
+      resolver = create_resolver
+    
+      create_lib_directory!
+    
+      @status_logger.info("Determining transitive dependencies...")
+    
+      dependencies = parse_dependencies(args)
+      dependencies = resolver.find_transitive_dependencies(*dependencies)
+      dependencies = dependencies.reject { |d| File.exists?(File.join(DEFAULT_DESTINATION_DIR, d.jar_file_name)) }
+    
+      if dependencies.empty?
+        @status_logger.info('All dependencies are met')
       else
-        resolver = create_resolver
-        
-        create_lib_directory!
-        
-        @stdout.puts("Determining transitive dependencies...")
-        
-        dependencies = parse_dependencies(args)
-        dependencies = resolver.find_transitive_dependencies(*dependencies)
-        dependencies = dependencies.reject { |d| File.exists?(File.join(DEFAULT_DESTINATION_DIR, d.jar_file_name)) }
-        
-        if dependencies.empty?
-          @stdout.puts(%(All dependencies are met))
-        else
-          dependencies.each do |dependency|
-            @stdout.puts(%(Downloading "#{dependency.to_dependency.to_s}"))
-            resolver.download!(DEFAULT_DESTINATION_DIR, false, dependency)
-          end
+        dependencies.each do |dependency|
+          @status_logger.info(%(Downloading "#{dependency.to_dependency.to_s}"))
+          resolver.download!(DEFAULT_DESTINATION_DIR, false, dependency)
         end
       end
-      0
+      
+      return 0
+    rescue => e
+      @status_logger.warn(%(Warning: #{e.message}))
+      return 1
     end
     
   private
@@ -46,7 +51,7 @@ module PomPomPom
     end
   
     def create_resolver
-      Resolver.new(STANDARD_REPOSITORIES)
+      Resolver.new(STANDARD_REPOSITORIES, :logger => @status_logger)
     end
   
     def parse_dependencies(args)
@@ -54,14 +59,29 @@ module PomPomPom
         begin
           Dependency.parse(coordinate)
         rescue ArgumentError => e
-          @stderr.puts(%(Warning: "#{coordinate}" is not a valid artifact coordinate))
+          @status_logger.warn(%(Warning: "#{coordinate}" is not a valid artifact coordinate))
           nil
         end
       end.compact
     end
   
     def print_usage
-      @stderr.puts('Usage: pompompom <group_id:artifact_id:version> [<group_id:artifact_id:version>]')
+      @status_logger.info('Usage: pompompom <group_id:artifact_id:version> [<group_id:artifact_id:version>]')
+    end
+    
+    class EchoLogger
+      def initialize(io)
+        @io = io
+      end
+      
+      def debug(msg); end
+      
+      def info(msg)
+        @io.puts(msg)
+      end
+      
+      alias_method :warn, :info
+      alias_method :fatal, :info
     end
   end
 end
