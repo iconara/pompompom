@@ -56,7 +56,13 @@ module PomPomPom
     def parse_meta!(doc)
       properties = PROPERTIES.map { |p| [p.to_s, snake_caseify(p.to_s)] }
       properties.each do |property, tag_name|
-        instance_variable_set('@' + property, doc.at("/project/#{tag_name}/text()").to_s)
+        val = doc.at("/project/#{tag_name}/text()")
+         if val
+           instance_variable_set('@' + property, val.to_s)
+         else
+           val = doc.at("/project/parent/#{tag_name}/text()")
+           instance_variable_set('@' + property, val.to_s) if val
+         end
       end
     end
 

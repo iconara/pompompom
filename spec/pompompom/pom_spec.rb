@@ -80,6 +80,32 @@ module PomPomPom
           d.should be_optional
         end
       end
+    
+      context 'when properties are inherited from parent' do
+        before do
+          p = <<-XML
+            <project>
+              <parent>
+                <groupId>com.example</groupId>
+                <artifactId>test-parent</artifactId>
+                <version>2.0</version>
+              </parent>
+              <artifactId>pompompom</artifactId>
+              <packaging>jar</packaging>
+            </project>
+          XML
+          @pom = Pom.new(StringIO.new(p))
+          @pom.parse!
+        end
+        
+        it 'finds the group ID from the parent specification' do
+          @pom.group_id.should == 'com.example'
+        end
+
+        it 'finds the version from the parent specification' do
+          @pom.version.should == '2.0'
+        end
+      end
     end
   end
 end
