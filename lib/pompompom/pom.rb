@@ -24,6 +24,10 @@ module PomPomPom
       @dependencies.fetch(scope, []).dup
     end
     
+    def exclusions
+      []
+    end
+    
     def to_dependency
       Dependency.new(
         :group_id => group_id,

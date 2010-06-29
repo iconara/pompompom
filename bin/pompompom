@@ -1,11 +1,19 @@
+#!/usr/bin/env ruby
+
 $: << File.expand_path('../../lib', __FILE__)
 
 unless defined?(Bundler)
   require 'rubygems'
   require 'bundler'
-end
+  
+  Bundler.setup
+else
+  require 'rubygems'
 
-Bundler.setup
+  gem 'hpricot'
+end
 
 require 'pompompom'
 require 'pompompom/cli'
+
+exit PomPomPom::Cli.new(STDIN, STDOUT, STDERR).run!(*ARGV)

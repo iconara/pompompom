@@ -14,6 +14,10 @@ module PomPomPom
       repository_url += '/' unless repository_url[-1,1] == '/'
       "#{repository_url}#{group_path}/#{artifact_id}/#{version}/#{file_name}"
     end
+    
+    def jar_file_name
+      "#{artifact_id}-#{version}.jar"
+    end
   end
 end
     

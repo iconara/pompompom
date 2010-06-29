@@ -17,4 +17,10 @@ shared_examples_for 'an URL builder' do
       url.should == "http://example.com/net/iconara/pompompom/1.0/pompompom-1.0.pom"
     end
   end
+  
+  describe '#jar_file_name' do
+    it 'returns <artifact_id>-<version>.jar' do
+      @url_builder.jar_file_name.should match(/^[-_\w\d]+-[\d.]{1,5}\.jar$/)
+    end
+  end
 end

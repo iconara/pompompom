@@ -3,21 +3,42 @@ module PomPomPom
     class JarNotFoundError < StandardError; end
     class DependencyNotFoundError < StandardError; end
     
-    def initialize(dependencies, repositories, options={})
-      @dependencies, @repositories, @logger = dependencies, repositories, (options[:logger] || NullLogger.new)
+    def initialize(repositories, options={})
+      @repositories, @logger, @downloader = repositories, (options[:logger] || NullLogger.new), (options[:downloader] || Downloader.new)
       raise ArgumentError, 'No repositories given!' if repositories.nil? || repositories.empty?
     end
     
-    def download!(target_dir, downloader=Downloader.new)
-      Dir.mkdir(target_dir)
-      resolver = PomResolver.new(@dependencies, @repositories, downloader, @logger)
-      resolver.all_poms.each do |pom|
+    def download!(target_dir, transitive, *dependencies)
+      create_target_directory(target_dir)
+      all_dependencies = if transitive then find_transitive_dependencies(*dependencies) else dependencies end
+      all_dependencies.each do |pom|
         destination = File.join(target_dir, "#{pom.artifact_id}-#{pom.version}.jar")
-        JarDownloader.new(pom, destination, @repositories, downloader, @logger).download!
+        JarDownloader.new(pom, destination, @repositories, @downloader, @logger).download!
       end
     end
     
+    def find_transitive_dependencies(*dependencies)
+      resolver = PomResolver.new(dependencies, @repositories, @downloader, @logger)
+      resolver.all_poms.inject({}) do |acc, pom|
+        acc[pom.to_dependency] = pom
+        acc
+      end.values
+    end
+    
   private
+  
+    def create_target_directory(target_dir)
+      return if File.directory?(target_dir)
+      raise 'Cannot create target directory because it already exists (but is not a directory)' if File.exists?(target_dir)
+      Dir.mkdir(target_dir)
+    end
+  
+    def args_and_options(*args)
+      if Hash === args.last
+        options = args.pop
+      end
+      [args, options || {}]
+    end
   
     class NullLogger
       def info(msg); end
