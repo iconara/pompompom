@@ -4,15 +4,16 @@ Pom Pom Pom is a basic dependency manager for Maven repository artifacts.
 
 The following code would download `amqp-client-1.8.0.jar` and its dependencies, `commons-cli-1.1.jar` and `commons-io-1.1.jar`, to the directory `lib`:
 
-    dependencies = [Dependency.new('com.rabbitmq', 'amqp-client', '1.8.0')]
+    dependencies = %w(com.rabbitmq:amqp-client:1.8.0 com.google.inject:guice:2.0)
+    dependencies = dependencies.map { |d| Dependency.parse(d) }
     repositories = %w(http://repo1.maven.org/maven2)
-    resolver = Resolver.new(dependencies, repositories)
-    resolver.download('lib')
+    resolver = Resolver.new(repositories)
+    resolver.download('lib', true, *dependencies)
     
 There will be less verbose ways of doing this in the future. The goal is to be able to use this with rake, like this:
 
     task :dependencies do
-      pompompom :artifacts => %w(com.rabbitmq:amqp-client:1.8.0)
+      pompompom :artifacts => %w(com.rabbitmq:amqp-client:1.8.0 com.google.inject:guice:2.0)
     end
     
 Which would do the same as the code above.
