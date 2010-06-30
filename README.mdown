@@ -28,5 +28,5 @@ It will create a directory called `lib` and download JARs into it. In the future
 
 Every time I look at Maven I cringe. Buildr is almost as bad, but hides some of the complexity. Ivy is better, but still too much noisy XML.
 
-Pom Pom Pom is meant to do more or less what Ivy does, but in a way that doesn't want to make you tear out your eyes.
+Pom Pom Pom is meant to do more or less what Ivy does, but in a way that doesn't make you want to tear out your eyes.
 
