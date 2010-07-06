@@ -6,16 +6,10 @@ else
   $: << File.expand_path('../../lib', __FILE__)
 end
 
-unless defined?(Bundler)
-  require 'rubygems'
-  require 'bundler'
-  
-  Bundler.setup
-else
-  require 'rubygems'
+require 'rubygems'
 
-  gem 'hpricot'
-end
+gem 'hpricot'
+gem 'immutable_struct'
 
 require 'pompompom'
 require 'pompompom/cli'
