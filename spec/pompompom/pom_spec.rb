@@ -105,6 +105,18 @@ module PomPomPom
         it 'finds the version from the parent specification' do
           @pom.version.should == '2.0'
         end
+        
+        it 'knows it has a parent' do
+          @pom.should have_parent
+        end
+        
+        it 'knows the artifact ID of its parent' do
+          @pom.parent.group_id.should == 'com.example'
+        end
+        
+        it 'knows the group ID of its parent' do
+          @pom.parent.artifact_id.should == 'test-parent'
+        end
       end
     end
   end
