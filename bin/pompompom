@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
-$: << File.expand_path('../../lib', __FILE__)
+if File.symlink?(__FILE__)
+  $: << File.expand_path('../../lib', File.readlink(__FILE__))
+else
+  $: << File.expand_path('../../lib', __FILE__)
+end
 
 unless defined?(Bundler)
   require 'rubygems'
