@@ -159,6 +159,37 @@ module PomPomPom
           @resolver.find_transitive_dependencies(*@dependencies)
         end
       end
+      
+      context 'artifacts with parents and dependency management' do
+        before do
+          @child = File.join(@repository_path, 'com', 'google', 'inject', 'guice', '2.0', 'guice-2.0.pom')
+          @parent = File.join(@repository_path, 'com', 'google', 'inject', 'guice-parent', '2.0', 'guice-parent-2.0.pom')
+          @grandparent = File.join(@repository_path, 'com', 'google', 'google', '1', 'google-1.pom')
+          @other_dependency = File.join(@repository_path, 'aopalliance', 'aopalliance', '1.0', 'aopalliance-1.0.pom')
+          
+          @downloader = double()
+          @downloader.stub(:get).with(@child).and_return(File.read(@child))
+          @downloader.stub(:get).with(@parent).and_return(File.read(@parent))
+          @downloader.stub(:get).with(@grandparent).and_return(File.read(@grandparent))
+          @downloader.stub(:get).with(@other_dependency).and_return(File.read(@other_dependency))
+          
+          @dependency = Dependency.parse('com.google.inject:guice:2.0')
+          
+          @resolver = Resolver.new([@repository_path], :downloader => @downloader)
+        end
+        
+        it 'downloads the parent artifact POM and merges it with the child (and thus discovers the required version of a dependency)' do
+          @dependencies = @resolver.find_transitive_dependencies(@dependency)
+          @dependencies.map(&:to_s).should include('aopalliance:aopalliance:1.0')
+        end
+        
+        it 'doesn\'t include parent dependencies in the list of transitive dependencies' do
+          @dependencies = @resolver.find_transitive_dependencies(@dependency)
+          @dependencies.should have(2).items
+          @dependencies.map(&:to_s).should include('aopalliance:aopalliance:1.0')
+          @dependencies.map(&:to_s).should include('com.google.inject:guice:2.0')
+        end
+      end
     end
   end
 end

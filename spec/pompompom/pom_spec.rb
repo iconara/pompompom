@@ -119,5 +119,35 @@ module PomPomPom
         end
       end
     end
+    
+    describe '#merge' do
+      before do
+        @child_pom_path  = File.expand_path('../../resources/repository/com/example/test-child/1.0/test-child-1.0.pom', __FILE__)
+        @parent_pom_path = File.expand_path('../../resources/repository/com/example/test-parent/1.0/test-parent-1.0.pom', __FILE__)
+        @child_pom_io    = File.open(@child_pom_path, 'r')
+        @parent_pom_io   = File.open(@parent_pom_path, 'r')
+        @child_pom       = Pom.new(@child_pom_io)
+        @parent_pom      = Pom.new(@parent_pom_io)
+        @child_pom.parse!
+        @parent_pom.parse!
+      end
+      
+      after do
+        @child_pom_io.close
+        @parent_pom_io.close
+      end
+      
+      it 'creates a copy' do
+        pom = @child_pom.merge(@parent_pom)
+        pom.group_id.should == @child_pom.group_id
+        pom.artifact_id.should == @child_pom.artifact_id
+        pom.version.should == @child_pom.version
+      end
+      
+      it 'resolves dependency versions using the parent' do
+        pom = @child_pom.merge(@parent_pom)
+        pom.dependencies.first.version.should == '8.8'
+      end
+    end
   end
 end

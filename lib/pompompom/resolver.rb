@@ -78,10 +78,10 @@ module PomPomPom
       def resolve_dependencies(dependency)
         pom = nil
         @repositories.detect do |repository|
-          if dependency.any_version?
-            d = find_latest(dependency, repository)
-          else
+          if dependency.has_version?
             d = dependency
+          else
+            d = find_latest(dependency, repository)
           end
           pom = get_pom(repository, d)
           pom
@@ -107,6 +107,10 @@ module PomPomPom
         if data
           pom = Pom.new(StringIO.new(data))
           pom.parse!
+          if pom.has_parent?
+            parent = get_pom(repository, pom.parent)
+            pom = pom.merge(parent)
+          end
           pom
         else
           nil

@@ -97,15 +97,29 @@ module PomPomPom
       end
     end
 
-    describe '#any_version?' do
+    describe '#has_version?' do
       it 'is true if version is unspecified' do
         d = Dependency.new(:group_id => 'com.example', :artifact_id => 'test')
-        d.any_version?.should be_true
+        d.should_not have_version
       end
       
       it 'is false if version is set' do
         d = Dependency.new(:group_id => 'com.example', :artifact_id => 'test', :version => '0.0.1')
-        d.any_version?.should be_false
+        d.should have_version
+      end
+    end
+    
+    describe '#same_artifact?' do
+      it 'returns true if the group and artifact IDs are the same' do
+        d1 = Dependency.new(:group_id => 'com.example', :artifact_id => 'hello', :version => '3')
+        d2 = Dependency.new(:group_id => 'com.example', :artifact_id => 'hello', :version => '4')
+        d1.same_artifact?(d2).should be_true
+      end
+
+      it 'returns false if the group and artifact IDs are the same' do
+        d1 = Dependency.new(:group_id => 'com.elpmaxe', :artifact_id => 'hello', :version => '3')
+        d2 = Dependency.new(:group_id => 'com.example', :artifact_id => 'hello', :version => '3')
+        d1.same_artifact?(d2).should_not be_true
       end
     end
     

@@ -28,8 +28,12 @@ module PomPomPom
       optional
     end
     
-    def any_version?
-      version.nil?
+    def has_version?
+      !version.nil?
+    end
+    
+    def same_artifact?(o)
+      o.artifact_id == self.artifact_id && o.group_id == self.group_id
     end
     
     def eql?(o)

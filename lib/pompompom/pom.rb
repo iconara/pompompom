@@ -10,15 +10,16 @@ module PomPomPom
     attr_reader *PROPERTIES
     attr_reader :parent
     
-    def initialize(io)
+    def initialize(io, defaults={})
       @io = io
-      @dependencies = { }
+      merge_defaults!(defaults)
     end
 
     def parse!
       doc = Hpricot.XML(@io)
       parse_meta!(doc)
       parse_parent!(doc)
+      parse_dependency_management!(doc)
       parse_dependencies!(doc)
     end
     
@@ -56,8 +57,20 @@ module PomPomPom
       )
     end
     
+    def merge(parent)
+      defaults = Hash[*PROPERTIES.map { |p| [p, self.send(p) || parent.send(p)] }.flatten]
+      defaults = defaults.merge(:parent => parent, :dependencies => @dependencies.dup, :dependency_management => @dependency_management.dup)
+      self.class.new(nil, defaults)
+    end
+    
     def to_s
       to_dependency.to_s
+    end
+    
+  protected
+  
+    def resolve_version(dependency)
+      @dependency_management.find { |d| d.same_artifact?(dependency) } || dependency
     end
     
   private
@@ -70,38 +83,67 @@ module PomPomPom
         str
       end
     end
+    
+    def merge_defaults!(defaults)
+      PROPERTIES.each do |p|
+        if defaults.has_key?(p)
+          instance_variable_set('@' + p.to_s, defaults[p])
+        end
+      end
+      
+      @parent = defaults[:parent]
+      
+      default_dependencies = defaults.fetch(:dependencies, {})
+
+      @dependencies = default_dependencies.keys.inject({}) do |deps, scope|
+        deps[scope] = default_dependencies[scope].map do |dependency|
+          if dependency.has_version?
+            dependency
+          elsif @parent
+            @parent.resolve_version(dependency)
+          end
+        end
+        deps
+      end
+      
+      @dependency_management = defaults.fetch(:dependency_management, [])
+    end
 
     def parse_meta!(doc)
-      project_node = doc.at("/project")
       properties = PROPERTIES.map { |p| [p.to_s, snake_caseify(p.to_s)] }
       properties.each do |property, tag_name|
-        instance_variable_set('@' + property, parse_attr(project_node, tag_name))
+        val = doc.at("/project/#{tag_name}/text()")
+        instance_variable_set('@' + property, val.to_s) if val
       end
     end
     
     def parse_parent!(doc)
       parent_node = doc.at("/project/parent")
-      if parent_node
-        @parent = Dependency.new(
-          :group_id => parse_attr(parent_node, 'groupId'),
-          :artifact_id => parse_attr(parent_node, 'artifactId'),
-          :version => parse_attr(parent_node, 'version')
-        )
-      end
+      @parent = parse_dependency(parent_node) if parent_node
     end
 
     def parse_dependencies!(doc)
       doc.search('/project/dependencies/dependency').each do |dep_node|
         scope = parse_scope(dep_node)
         @dependencies[scope] ||= []
-        @dependencies[scope] << Dependency.new(
-          :group_id => parse_attr(dep_node, 'groupId'),
-          :artifact_id => parse_attr(dep_node, 'artifactId'),
-          :version => parse_version(dep_node),
-          :optional => parse_attr(dep_node, 'optional').downcase == 'true',
-          :exclusions => parse_exclusions(dep_node)
-        )
+        @dependencies[scope] << parse_dependency(dep_node)
       end
+    end
+    
+    def parse_dependency_management!(doc)
+      doc.search('/project/dependencyManagement/dependencies/dependency').each do |dep_node|
+        @dependency_management << parse_dependency(dep_node)
+      end
+    end
+    
+    def parse_dependency(dep_node)
+      Dependency.new(
+        :group_id    => parse_attr(dep_node, 'groupId'),
+        :artifact_id => parse_attr(dep_node, 'artifactId'),
+        :version     => parse_version(dep_node),
+        :optional    => parse_attr(dep_node, 'optional').downcase == 'true',
+        :exclusions  => parse_exclusions(dep_node)
+      )
     end
     
     def parse_attr(dep_node, attr_name)
