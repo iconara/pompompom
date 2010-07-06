@@ -118,6 +118,74 @@ module PomPomPom
           @pom.parent.artifact_id.should == 'test-parent'
         end
       end
+
+      context 'property expansion' do
+        before do
+          @base_pom = <<-XML
+            <project>
+              <groupId>net.iconara</groupId>
+              <artifactId>pompompom</artifactId>
+              <version>1.0</version>
+              <name>Name</name>
+              <description>Description</description>
+              <packaging>jar</packaging>
+              <properties>
+                <foo.bar>baz</foo.bar>
+              </properties>
+              <dependencies>
+                <dependency>
+                  <groupId>net.iconara</groupId>
+                  <artifactId>pimpimpim</artifactId>
+                  <version>9.9</version>
+                </dependency>
+              </dependencies>
+            </project>
+          XML
+        end
+        
+        it 'knowns how to expand ${version}' do
+          pom = Pom.new(StringIO.new(@base_pom.sub('<version>9.9</version>', '<version>${version}</version>')))
+          pom.parse!
+          pom.dependencies.first.version.should == '1.0'
+        end
+        
+        it 'knowns how to expand ${project.version}' do
+          pom = Pom.new(StringIO.new(@base_pom.sub('<version>9.9</version>', '<version>${project.version}</version>')))
+          pom.parse!
+          pom.dependencies.first.version.should == '1.0'
+        end
+
+        it 'knowns how to expand ${project.artifactId}' do
+          pom = Pom.new(StringIO.new(@base_pom.sub('<name>Name</name>', '<name>This is ${project.artifactId}</name>')))
+          pom.parse!
+          pom.name.should == 'This is pompompom'
+        end
+
+        it 'knowns how to expand ${project.groupId}' do
+          pom = Pom.new(StringIO.new(@base_pom.sub('<description>Description</description>', '<description>The group ID is ${project.groupId}</description>')))
+          pom.parse!
+          pom.description.should == 'The group ID is net.iconara'
+        end
+
+        it 'knowns how to expand and environment variable' do
+          ENV['JAVA_HOME'] = '/opt/java'
+          pom = Pom.new(StringIO.new(@base_pom.sub('<description>Description</description>', '<description>Java is at ${env.JAVA_HOME}</description>')))
+          pom.parse!
+          pom.description.should == 'Java is at /opt/java'
+        end
+
+        it 'looks up project-specific properties' do
+          pom = Pom.new(StringIO.new(@base_pom.sub('<description>Description</description>', '<description>${foo.bar}</description>')))
+          pom.parse!
+          pom.description.should == 'baz'
+        end
+
+        it 'leaves unexpandable properties in place' do
+          pom = Pom.new(StringIO.new(@base_pom.sub('<description>Description</description>', '<description>${plonk}</description>')))
+          pom.parse!
+          pom.description.should == '${plonk}'
+        end
+      end
     end
     
     describe '#merge' do

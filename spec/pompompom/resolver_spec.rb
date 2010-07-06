@@ -190,6 +190,16 @@ module PomPomPom
           @dependencies.map(&:to_s).should include('com.google.inject:guice:2.0')
         end
       end
+    
+      context 'artifacts with properties resolvable only with parent information' do
+        it 'resolves all properties' do
+          @logger = stub(:debug => nil, :info => nil, :warn => nil)
+          @dependency = Dependency.parse('org.eclipse.jetty:jetty-server:7.1.4.v20100610')
+          @resolver = Resolver.new([@repository_path], :downloader => FilesystemDownloader.new, :logger => @logger)
+          @all_dependencies = @resolver.find_transitive_dependencies(@dependency)
+          @all_dependencies.find { |p| p.artifact_id == 'jetty-server' }.url.should == 'http://www.eclipse.org/jetty'
+        end
+      end
     end
   end
 end
