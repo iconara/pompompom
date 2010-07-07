@@ -95,9 +95,12 @@ module PomPomPom
       
       def find_latest(dependency, repository)
         @logger.info(%(Finding latest version for #{dependency.group_id}:#{dependency.artifact_id}))
-        metadata = Metadata.new(@downloader.get(dependency.metadata_url(repository)))
+        url = dependency.metadata_url(repository)
+        metadata = Metadata.new(@downloader.get(url))
         metadata.parse!
         dependency.clone(:version => metadata.latest_version)
+      rescue => e
+        @logger.warn(%(Could not donwload "#{url}": #{e.message}))
       end
       
       def get_pom(repository, dependency)
@@ -115,6 +118,9 @@ module PomPomPom
         else
           nil
         end
+      rescue => e
+        @logger.debug(%(Could not download "#{url}": #{e.message}))
+        nil
       end
     end
     
@@ -128,7 +134,11 @@ module PomPomPom
         @repositories.detect do |repository|
           url = @pom.jar_url(repository)
           @logger.debug(%(Loading JAR from "#{url}"))
-          data = @downloader.get(url)
+          begin
+            data = @downloader.get(url)
+          rescue => e
+            @logger.debug(%(Could not download "#{url}": #{e.message}))
+          end
           data
         end
         raise JarNotFoundError, "Could not download JAR for #{@pom.to_dependency} in any repository" unless data
