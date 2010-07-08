@@ -6,5 +6,5 @@ require 'pompompom/downloader'
 require 'pompompom/resolver'
 
 module PomPomPom
-  VERSION = '1.0.0'
+  VERSION = '1.0.1'
 end
