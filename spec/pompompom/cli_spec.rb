@@ -1,6 +1,7 @@
 require File.expand_path('../../spec_helper', __FILE__)
 require 'tmpdir'
 require 'fileutils'
+require 'yaml'
 
 
 module PomPomPom
@@ -13,12 +14,14 @@ module PomPomPom
       @downloader = FilesystemDownloader.new
       @resolver = Resolver.new([@repository_path])
       @cli = Cli.new(@stdin, @stdout, @stderr)
-      @cli.stub!(:create_resolver).and_return(@resolver)
-      @cli.stub!(:create_lib_directory!)
       @tmp_dir = File.join(Dir.tmpdir, 'pompompom')
       FileUtils.rm_rf(@tmp_dir)
       Dir.mkdir(@tmp_dir)
       Dir.chdir(@tmp_dir)
+      @config_file_path = File.join(@tmp_dir, '.pompompomrc')
+      @cli.stub!(:create_resolver).and_return(@resolver)
+      @cli.stub!(:create_lib_directory!)
+      @cli.stub!(:config_file_path).and_return(@config_file_path)
     end
     
     after do
@@ -87,6 +90,36 @@ module PomPomPom
       
       it 'returns 1' do
         @cli.run!('com.example:test:9.9').should == 1
+      end
+    end
+
+    context 'config file' do
+      it 'creates the config file if it doesn\'t exist' do
+        @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
+        File.exists?(@config_file_path).should be_true
+      end
+      
+      it 'adds the standard repositories to the config file, if it doesn\'t exist' do
+        @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
+        @config = YAML.load(File.read(@config_file_path))
+        @config['repositories'].should == Cli::STANDARD_REPOSITORIES
+      end
+      
+      it 'doesn\'t clobber an existing config file' do
+        @config = {'repositories' => %w(http://example.com/repo1 http://example.com/repo2)}
+        File.open(@config_file_path, 'w') { |f| f.write(YAML::dump(@config)) }
+        @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
+        @config = YAML.load(File.read(@config_file_path))
+        @config['repositories'].should == %w(http://example.com/repo1 http://example.com/repo2)
+      end
+      
+      it 'reads the config file' do
+        @config = {'repositories' => %w(http://example.com/repo1 http://example.com/repo2)}
+        File.open(@config_file_path, 'w') { |f| f.write(YAML::dump(@config)) }
+        Resolver.should_receive(:new).with(%w(http://example.com/repo1 http://example.com/repo2), an_instance_of(Hash))
+        @cli = Cli.new(@stdin, @stdout, @stderr)
+        @cli.stub!(:config_file_path).and_return(@config_file_path)
+        @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
       end
     end
   end
