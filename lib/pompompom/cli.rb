@@ -5,10 +5,12 @@ module PomPomPom
     ]
     
     DEFAULT_DESTINATION_DIR = 'lib'
+    CACHE_DIR = File.expand_path('~/.pompompom')
     
     def initialize(stdin, stdout, stderr)
       @stdin, @stdout, @stderr = stdin, stdout, stderr
       @status_logger = EchoLogger.new(@stderr)
+      @downloader = CachingDownloader.new(CACHE_DIR, Downloader.new)
     end
     
     def run!(*args)
@@ -51,7 +53,11 @@ module PomPomPom
     end
   
     def create_resolver
-      Resolver.new(STANDARD_REPOSITORIES, :logger => @status_logger)
+      Resolver.new(
+        STANDARD_REPOSITORIES, 
+        :logger => @status_logger, 
+        :downloader => @downloader
+      )
     end
   
     def parse_dependencies(args)
