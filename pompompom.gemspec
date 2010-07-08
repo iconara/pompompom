@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pompompom}
-  s.version = "1.0.0"
+  s.version = "1.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Theo Hultberg"]
@@ -38,6 +38,7 @@ Gem::Specification.new do |s|
      "pompompom.gemspec",
      "spec/pompompom/cli_spec.rb",
      "spec/pompompom/dependency_spec.rb",
+     "spec/pompompom/downloader_spec.rb",
      "spec/pompompom/metadata_spec.rb",
      "spec/pompompom/pom_spec.rb",
      "spec/pompompom/resolver_spec.rb",
@@ -96,6 +97,7 @@ Gem::Specification.new do |s|
   s.test_files = [
     "spec/pompompom/cli_spec.rb",
      "spec/pompompom/dependency_spec.rb",
+     "spec/pompompom/downloader_spec.rb",
      "spec/pompompom/metadata_spec.rb",
      "spec/pompompom/pom_spec.rb",
      "spec/pompompom/resolver_spec.rb",
