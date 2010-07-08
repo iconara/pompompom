@@ -1,8 +1,11 @@
 source :rubygems
 
-gem 'immutable_struct', :git => 'git://github.com/iconara/immutable_struct.git'
+gem 'immutable_struct'
 gem 'hpricot'
 
 group :testing do
   gem 'rspec'
+  gem 'sdoc'
+  gem 'jeweler'
+  gem 'rake'
 end
