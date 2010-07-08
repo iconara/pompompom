@@ -22,7 +22,9 @@ Gem::Specification.new do |s|
   s.files = [
     ".gitignore",
      "Gemfile",
+     "LICENSE",
      "README.mdown",
+     "Rakefile",
      "bin/pompompom",
      "lib/pom_pom_pom.rb",
      "lib/pompompom.rb",
@@ -33,6 +35,7 @@ Gem::Specification.new do |s|
      "lib/pompompom/pom.rb",
      "lib/pompompom/resolver.rb",
      "lib/pompompom/url_builder.rb",
+     "pompompom.gemspec",
      "spec/pompompom/cli_spec.rb",
      "spec/pompompom/dependency_spec.rb",
      "spec/pompompom/metadata_spec.rb",
@@ -80,7 +83,10 @@ Gem::Specification.new do |s|
      "spec/resources/repository/org/eclipse/jetty/jetty-server/7.1.4.v20100610/jetty-server-7.1.4.v20100610.jar",
      "spec/resources/repository/org/eclipse/jetty/jetty-server/7.1.4.v20100610/jetty-server-7.1.4.v20100610.pom",
      "spec/resources/repository/org/eclipse/jetty/jetty-util/7.1.4.v20100610/jetty-util-7.1.4.v20100610.pom",
-     "spec/spec_helper.rb"
+     "spec/spec_helper.rb",
+     "tasks/gem.rake",
+     "tasks/rdoc.rake",
+     "tasks/spec.rake"
   ]
   s.homepage = %q{http://github.com/iconara/pompompom}
   s.rdoc_options = ["--charset=UTF-8"]
