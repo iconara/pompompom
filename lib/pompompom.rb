@@ -4,3 +4,7 @@ require 'pompompom/dependency'
 require 'pompompom/pom'
 require 'pompompom/downloader'
 require 'pompompom/resolver'
+
+module PomPomPom
+  VERSION = '1.0.0'
+end
