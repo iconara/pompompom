@@ -22,7 +22,7 @@ There is a command line tool that can be used to install artifacts:
 
     pompompom com.rabbitmq:amqp-client:1.8.0 com.google.inject:guice:2.0
     
-It will create a directory called `lib` and download JARs into it. In the future things may be configurable, and POMs will be cached to make things quicker.
+It will create a directory called `lib` and download JARs into it. By default it will look in the main Maven repository, but you can add more repositories by editing ~/.pompompomrc (which is created automatically on the first run). Downloaded artifacts and POMs are cached in ~/.pompompom.
 
 ## Why another dependency management tool, why not use Maven, Buildr, sbt or Ivy?
 
