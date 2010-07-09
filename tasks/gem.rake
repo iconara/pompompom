@@ -12,6 +12,8 @@ Jeweler::Tasks.new do |gem|
   gem.authors = ['Theo Hultberg']
   gem.version = PomPomPom::VERSION
   gem.test_files = FileList['spec/**/*.rb']
+  gem.add_dependency 'immutable_struct'
+  gem.add_dependency 'hpricot'
   # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
 end
 
