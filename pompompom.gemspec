@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pompompom}
-  s.version = "1.0.1"
+  s.version = "1.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Theo Hultberg"]
-  s.date = %q{2010-07-08}
+  s.date = %q{2010-07-09}
   s.default_executable = %q{pompompom}
   s.description = %q{Ruby dependency manager for Maven repository artifacts}
   s.email = %q{theo@iconara.net}
@@ -110,9 +110,15 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<immutable_struct>, [">= 0"])
+      s.add_runtime_dependency(%q<hpricot>, [">= 0"])
     else
+      s.add_dependency(%q<immutable_struct>, [">= 0"])
+      s.add_dependency(%q<hpricot>, [">= 0"])
     end
   else
+    s.add_dependency(%q<immutable_struct>, [">= 0"])
+    s.add_dependency(%q<hpricot>, [">= 0"])
   end
 end
 
