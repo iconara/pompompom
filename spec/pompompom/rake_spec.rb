@@ -12,7 +12,7 @@ describe 'rake' do
     @lib_dir = File.join(@tmp_dir, 'lib')
     @repo_dir = File.join(@tmp_dir, 'repo')
     @config_file = File.join(@tmp_dir, '.pompompomrc')
-    @downloader = FilesystemDownloader.new
+    @downloader = PomPomPom::FilesystemDownloader.new
     @dependencies = %w(com.rabbitmq:amqp-client:1.8.0 com.google.inject:guice:2.0)
   end
   
