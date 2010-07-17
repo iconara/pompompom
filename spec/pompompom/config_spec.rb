@@ -27,10 +27,12 @@ module PomPomPom
     describe '#load!' do
       it 'loads the config file' do
         config_file = File.join(@tmp_dir, '.pom3rc')
-        File.open(config_file, 'w') { |f| f.write(YAML::dump(:repositories => %w(repo1 repo2))) }
+        File.open(config_file, 'w') { |f| f.write(YAML::dump(:cache_dir => 'cache', :target_dir => 'deps', :repositories => %w(repo1 repo2))) }
         config = Config.new(:config_file => config_file)
         config.load!
         config.repositories.should == %w(repo1 repo2)
+        config.target_dir.should == 'deps'
+        config.cache_dir.should == 'cache'
       end
     end
     
@@ -62,7 +64,10 @@ module PomPomPom
       
       it 'creates the file and puts the standard repository list in it' do
         @config.create_file!
-        YAML.load(File.read(@config_file))['repositories'].should == %w(http://repo1.maven.org/maven2)
+        config_data = YAML.load(File.read(@config_file))
+        config_data['repositories'].should == %w(http://repo1.maven.org/maven2)
+        config_data['cache_dir'].should == File.expand_path('~/.pompompom')
+        config_data['target_dir'].should == 'lib'
       end
       
       it 'doesn\'t clobber existing files' do

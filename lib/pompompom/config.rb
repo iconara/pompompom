@@ -23,7 +23,6 @@ module PomPomPom
       @repositories = options[:repositories] || @repositories
       @target_dir   = options[:target_dir]   || @target_dir
       @cache_dir    = options[:cache_dir]    || @cache_dir
-      @config_file  = options[:config_file]  || @config_file
     end
     
     def file_exists?
@@ -33,7 +32,11 @@ module PomPomPom
     def create_file!
       return if file_exists?
       File.open(@config_file, 'w') do |f| 
-        f.write(YAML.dump('repositories' => @repositories))
+        f.write(YAML.dump(
+          'repositories' => @repositories,
+          'cache_dir' => @cache_dir,
+          'target_dir' => @target_dir
+        ))
       end
     end
     
