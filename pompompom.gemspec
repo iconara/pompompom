@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pompompom}
-  s.version = "1.0.2"
+  s.version = "1.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Theo Hultberg"]
-  s.date = %q{2010-07-09}
+  s.date = %q{2010-07-17}
   s.default_executable = %q{pompompom}
   s.description = %q{Ruby dependency manager for Maven repository artifacts}
   s.email = %q{theo@iconara.net}
@@ -26,21 +26,27 @@ Gem::Specification.new do |s|
      "README.mdown",
      "Rakefile",
      "bin/pompompom",
+     "examples/Rakefile",
+     "examples/config.yml",
      "lib/pom_pom_pom.rb",
      "lib/pompompom.rb",
      "lib/pompompom/cli.rb",
+     "lib/pompompom/config.rb",
      "lib/pompompom/dependency.rb",
      "lib/pompompom/downloader.rb",
      "lib/pompompom/metadata.rb",
      "lib/pompompom/pom.rb",
+     "lib/pompompom/rake.rb",
      "lib/pompompom/resolver.rb",
      "lib/pompompom/url_builder.rb",
      "pompompom.gemspec",
      "spec/pompompom/cli_spec.rb",
+     "spec/pompompom/config_spec.rb",
      "spec/pompompom/dependency_spec.rb",
      "spec/pompompom/downloader_spec.rb",
      "spec/pompompom/metadata_spec.rb",
      "spec/pompompom/pom_spec.rb",
+     "spec/pompompom/rake_spec.rb",
      "spec/pompompom/resolver_spec.rb",
      "spec/pompompom/url_builders_shared.rb",
      "spec/resources/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar",
@@ -96,10 +102,12 @@ Gem::Specification.new do |s|
   s.summary = %q{Ruby dependency manager for Maven repository artifacts}
   s.test_files = [
     "spec/pompompom/cli_spec.rb",
+     "spec/pompompom/config_spec.rb",
      "spec/pompompom/dependency_spec.rb",
      "spec/pompompom/downloader_spec.rb",
      "spec/pompompom/metadata_spec.rb",
      "spec/pompompom/pom_spec.rb",
+     "spec/pompompom/rake_spec.rb",
      "spec/pompompom/resolver_spec.rb",
      "spec/pompompom/url_builders_shared.rb",
      "spec/spec_helper.rb"
