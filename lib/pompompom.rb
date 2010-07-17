@@ -7,5 +7,5 @@ require 'pompompom/resolver'
 require 'pompompom/config'
 
 module PomPomPom
-  VERSION = '1.1.0'
+  VERSION = '1.1.1'
 end
