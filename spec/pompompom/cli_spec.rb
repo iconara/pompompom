@@ -13,15 +13,12 @@ module PomPomPom
       @stderr = StringIO.new
       @downloader = FilesystemDownloader.new
       @resolver = Resolver.new([@repository_path])
-      @cli = Cli.new(@stdin, @stdout, @stderr)
       @tmp_dir = File.join(Dir.tmpdir, 'pompompom')
       FileUtils.rm_rf(@tmp_dir)
       Dir.mkdir(@tmp_dir)
       Dir.chdir(@tmp_dir)
       @config_file_path = File.join(@tmp_dir, '.pompompomrc')
-      @cli.stub!(:create_resolver).and_return(@resolver)
-      @cli.stub!(:create_lib_directory!)
-      @cli.stub!(:config_file_path).and_return(@config_file_path)
+      @cli = Cli.new(@stdin, @stdout, @stderr, :resolver => @resolver, :config_file => @config_file_path)
     end
     
     after do
@@ -102,7 +99,7 @@ module PomPomPom
       it 'adds the standard repositories to the config file, if it doesn\'t exist' do
         @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
         @config = YAML.load(File.read(@config_file_path))
-        @config['repositories'].should == Cli::STANDARD_REPOSITORIES
+        @config['repositories'].should == Config::REPOSITORIES
       end
       
       it 'doesn\'t clobber an existing config file' do
@@ -117,8 +114,7 @@ module PomPomPom
         @config = {'repositories' => %w(http://example.com/repo1 http://example.com/repo2)}
         File.open(@config_file_path, 'w') { |f| f.write(YAML::dump(@config)) }
         Resolver.should_receive(:new).with(%w(http://example.com/repo1 http://example.com/repo2), an_instance_of(Hash))
-        @cli = Cli.new(@stdin, @stdout, @stderr)
-        @cli.stub!(:config_file_path).and_return(@config_file_path)
+        @cli = Cli.new(@stdin, @stdout, @stderr, :config_file => @config_file_path)
         @cli.run!('net.iconara:pompompom:1.0', 'com.example:test:9.9')
       end
     end
