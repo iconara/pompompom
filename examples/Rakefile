@@ -2,8 +2,37 @@ $: << File.expand_path('../../lib', __FILE__)
 
 require 'pompompom/rake'
 
-include PomPomPom
 
-task :install do
+task :clean do
+  rm_rf 'lib'
+  rm_rf 'cache'
+end
+
+task :example1 do
   pompompom 'org.eclipse.jetty:jetty-server:7.1.5.v20100705'
+end
+
+task :example2 do
+  repositories = %w(
+    http://repo1.maven.org/maven2
+    http://scala-tools.org/repo-releases
+    http://scala-tools.org/repo-snapshots
+  )
+
+  dependencies = %w(
+    org.eclipse.jetty:jetty-server:7.1.5.v20100705
+    org.scala-tools.testing:specs_2.8.0:1.6.5-SNAPSHOT
+    org.mockito:mockito-core:1.8.5
+    net.liftweb:lift-json:2.0-scala280-SNAPSHOT
+    log4j:log4j:1.2.16
+    org.slf4j:slf4j-log4j12:1.6.1
+    org.slf4j:slf4j-api:1.6.1
+    org.mongodb:mongo-java-driver:2.0
+  )
+
+  pompompom dependencies, :repositories => repositories, :cache_dir => 'cache'
+end
+
+task :example3 do
+  pompompom 'org.eclipse.jetty:jetty-server:7.1.5.v20100705', :logger => STDOUT, :config_file => 'config.yml', :cache_dir => 'cache'
 end
