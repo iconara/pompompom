@@ -1,0 +1,9 @@
+$: << File.expand_path('../../lib', __FILE__)
+
+require 'pompompom/rake'
+
+include PomPomPom
+
+task :install do
+  pompompom 'org.eclipse.jetty:jetty-server:7.1.5.v20100705'
+end
