@@ -41,4 +41,26 @@ describe 'rake' do
     jars.should include('amqp-client-1.8.0.jar') 
     jars.should include('guice-2.0.jar')
   end
+  
+  context 'logging' do
+    it 'outputs status to an IO' do
+      io = StringIO.new
+      pompompom(@dependencies, :logger => io, :target_dir => @lib_dir, :downloader => @downloader, :repositories => [@repository_path], :config_file => @config_file)
+      io.string.should include('Loading amqp-client-1.8.0.jar')
+      io.string.should include('Loading guice-2.0.jar')
+      io.string.should include('Loading commons-io-1.2.jar')
+      io.string.should include('Loading commons-cli-1.1.jar')
+      io.string.should include('Loading aopalliance-1.0.jar')
+    end
+    
+    it 'logs to #info on a logger' do
+      logger = double()
+      logger.should_receive(:info).with('Loading amqp-client-1.8.0.jar')
+      logger.should_receive(:info).with('Loading guice-2.0.jar')
+      logger.should_receive(:info).with('Loading commons-io-1.2.jar')
+      logger.should_receive(:info).with('Loading commons-cli-1.1.jar')
+      logger.should_receive(:info).with('Loading aopalliance-1.0.jar')
+      pompompom(@dependencies, :logger => logger, :target_dir => @lib_dir, :downloader => @downloader, :repositories => [@repository_path], :config_file => @config_file)
+    end
+  end
 end

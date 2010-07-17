@@ -2,9 +2,32 @@ require 'pompompom'
 
 
 module PomPomPom
+  class SimpleLogger
+    def initialize(io)
+      @io = io
+    end
+    def info(msg)
+      @io.puts(msg)
+    end
+  end
+  
+  class NullLogger
+    def info(msg); end
+  end
+  
   def pompompom(*args)
     options = (Hash === args.last) ? args.pop : { }
     dependencies = args.flatten
+    
+    logger = NullLogger.new
+    
+    if options[:logger]
+      if options[:logger].respond_to?(:info)
+        logger = options[:logger]
+      elsif options[:logger].respond_to?(:puts)
+        logger = SimpleLogger.new(options[:logger])
+      end
+    end
     
     config = Config.new(options)
     config.load!
@@ -19,6 +42,7 @@ module PomPomPom
   
     unless dependencies.empty?
       dependencies.each do |dependency|
+        logger.info("Loading #{dependency.jar_file_name}")
         resolver.download!(config.target_dir, false, dependency)
       end
     end
