@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pompompom}
-  s.version = "1.1.1"
+  s.version = "1.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Theo Hultberg"]
-  s.date = %q{2010-07-17}
+  s.date = %q{2010-08-06}
   s.default_executable = %q{pompompom}
   s.description = %q{Ruby dependency manager for Maven repository artifacts}
   s.email = %q{theo@iconara.net}
