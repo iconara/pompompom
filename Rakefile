@@ -1,5 +1,12 @@
 $: << File.expand_path('../lib', __FILE__)
 
+unless defined?(Bundler)
+  require 'rubygems'
+  require 'bundler'
+end
+
+Bundler.setup(:default, :development, :test)
+
 require 'pompompom'
 
 task :default => :spec
