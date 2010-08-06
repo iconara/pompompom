@@ -34,6 +34,16 @@ module PomPomPom
         config.target_dir.should == 'deps'
         config.cache_dir.should == 'cache'
       end
+      
+      it 'does not clobber options that were set in the constructor' do
+        config_file = File.join(@tmp_dir, '.pom3rc')
+        File.open(config_file, 'w') { |f| f.write(YAML::dump(:cache_dir => 'cache', :target_dir => 'deps', :repositories => %w(repo1 repo2))) }
+        config = Config.new(:config_file => config_file, :repositories => %w(repo3 repo4))
+        config.load!
+        config.repositories.should == %w(repo3 repo4)
+        config.target_dir.should == 'deps'
+        config.cache_dir.should == 'cache'
+      end
     end
     
     describe '#file_exists?' do

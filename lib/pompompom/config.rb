@@ -11,6 +11,7 @@ module PomPomPom
     attr_reader :repositories, :target_dir, :cache_dir, :config_file
     
     def initialize(options={})
+      @options_set  = options.keys
       @repositories = options[:repositories] || REPOSITORIES
       @target_dir   = options[:target_dir]   || TARGET_DIR
       @cache_dir    = options[:cache_dir]    || CACHE_DIR
@@ -20,9 +21,9 @@ module PomPomPom
     def load!
       return unless file_exists?
       options = symbolize_keys(YAML.load(File.read(@config_file)))
-      @repositories = options[:repositories] || @repositories
-      @target_dir   = options[:target_dir]   || @target_dir
-      @cache_dir    = options[:cache_dir]    || @cache_dir
+      @repositories = options[:repositories] || @repositories unless @options_set.include?(:repositories)
+      @target_dir   = options[:target_dir]   || @target_dir   unless @options_set.include?(:target_dir)
+      @cache_dir    = options[:cache_dir]    || @cache_dir    unless @options_set.include?(:cache_dir)
     end
     
     def file_exists?
