@@ -7,6 +7,7 @@ require 'yaml'
 module PomPomPom
   describe Cli do
     before do
+      @cwd = Dir.getwd
       @repository_path = File.expand_path('../../resources/repository', __FILE__)
       @stdin  = StringIO.new
       @stdout = StringIO.new
@@ -22,6 +23,7 @@ module PomPomPom
     end
     
     after do
+      Dir.chdir(@cwd)
       FileUtils.rm_rf(@tmp_dir)
     end
     
