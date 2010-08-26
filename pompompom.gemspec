@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pompompom}
-  s.version = "1.1.2"
+  s.version = "1.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Theo Hultberg"]
-  s.date = %q{2010-08-06}
+  s.date = %q{2010-08-26}
   s.default_executable = %q{pompompom}
   s.description = %q{Ruby dependency manager for Maven repository artifacts}
   s.email = %q{theo@iconara.net}
@@ -63,6 +63,8 @@ Gem::Specification.new do |s|
      "spec/resources/repository/com/example/test-optional/1.0/test-optional-1.0.jar",
      "spec/resources/repository/com/example/test-optional/1.0/test-optional-1.0.pom",
      "spec/resources/repository/com/example/test-parent/1.0/test-parent-1.0.pom",
+     "spec/resources/repository/com/example/test/77.7/test-77.7.jar",
+     "spec/resources/repository/com/example/test/77.7/test-77.7.pom",
      "spec/resources/repository/com/example/test/8.8/test-8.8.jar",
      "spec/resources/repository/com/example/test/8.8/test-8.8.pom",
      "spec/resources/repository/com/example/test/9.9/test-9.9.jar",
