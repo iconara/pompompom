@@ -27,13 +27,39 @@ module PomPomPom
     def filter_newest(pom_groups)
       pom_groups.map do |id, poms|
         if poms.size > 1
-          newest = poms.sort { |a, b| a.version <=> b.version }.reverse.first
+          newest = find_newest_version(poms)
           @logger.warn(%(Warning: multiple versions of #{id} were required, using the newest required version (#{newest.version})))
           newest
         else
           poms.first
         end
       end.flatten
+    end
+    
+    def find_newest_version(poms)
+      sorted = poms.sort do |a, b| 
+        a_version = a.version.sub(/-\w+$/, '').split('.').map(&:to_i)
+        b_version = b.version.sub(/-\w+$/, '').split('.').map(&:to_i)
+        
+        while a_version.size < b_version.size
+          a_version << 0
+        end
+        
+        while a_version.size > b_version.size
+          b_version << 0
+        end
+        
+        cmp = 0
+
+        a_version.zip(b_version).each do |(an, bn)|
+          cmp = an <=> bn
+          break unless cmp == 0
+        end
+
+        cmp
+      end
+      
+      sorted.reverse.first
     end
   
     def group_by_artifact(poms)

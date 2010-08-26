@@ -145,7 +145,8 @@ module PomPomPom
         
         it 'selects the newest dependency if more than one of the same are found' do
           @all_dependencies = @resolver.find_transitive_dependencies(*@dependencies)
-          @all_dependencies.map(&:to_s).should include('com.example:test:9.9')
+          @all_dependencies.map(&:to_s).should include('com.example:test:77.7')
+          @all_dependencies.map(&:to_s).should_not include('com.example:test:9.9')
           @all_dependencies.map(&:to_s).should_not include('com.example:test:8.8')
         end
         
@@ -155,7 +156,7 @@ module PomPomPom
         end
         
         it 'warns if dependencies on multiple versions of an artifact are found' do
-          @logger.should_receive(:warn).with('Warning: multiple versions of com.example:test were required, using the newest required version (9.9)')
+          @logger.should_receive(:warn).with('Warning: multiple versions of com.example:test were required, using the newest required version (77.7)')
           @resolver.find_transitive_dependencies(*@dependencies)
         end
       end
