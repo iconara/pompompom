@@ -1,8 +1,6 @@
 # encoding: utf-8
 
-require 'java'
-
-require_relative 'ext/ivy-2.3.0-rc1'
+require 'ivy-jars'
 
 
 module Ivy
