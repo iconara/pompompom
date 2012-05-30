@@ -1,17 +1,9 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
-if File.symlink?(__FILE__)
-  $: << File.expand_path('../../lib', File.readlink(__FILE__))
-else
-  $: << File.expand_path('../../lib', __FILE__)
-end
-
-require 'rubygems'
-
-gem 'hpricot'
-gem 'immutable_struct'
+$: << File.expand_path('../../lib', __FILE__)
 
 require 'pompompom'
-require 'pompompom/cli'
 
-exit PomPomPom::Cli.new(STDIN, STDOUT, STDERR).run!(*ARGV)
+
+PomPomPom::Runner.run(*ARGV)

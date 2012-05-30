@@ -1,0 +1,11 @@
+source :rubygems
+
+gem 'rake'
+
+
+mvn_source 'http://oss.sonatype.org/content/repositories/github-releases', :name => 'github-releases'
+mvn_source 'http://clojars.org/repo'
+mvn_source 'http://twitter4j.org/maven2', :name => 'twitter4j'
+
+mvn 'io.netty', 'netty', '3.4.6.Final'
+mvn 'storm', 'storm', '0.7.1'

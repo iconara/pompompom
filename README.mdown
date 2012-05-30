@@ -1,30 +1,31 @@
 # Pom Pom Pom ♫
 
-Pom Pom Pom is a dependency manager for Maven repository artifacts.
+Pom Pom Pom is a dependency manager for JRuby projects that depend on Maven artifacts. It uses Ivy under the hood.
 
-The following code would download Rabbit MQ's AMQP client libraries, and Google Guice, as well as their dependencies into the directory `lib`:
+You can use Pom Pom Pom from the command line:
 
-    require 'pompompom/rake'
+    pompompom com.rabbitmq:amqp-client:1.8.0 com.google.guava:guava:12.0
 
-    task :dependencies do
-      pompompom 'com.rabbitmq:amqp-client:1.8.0', 'com.google.inject:guice:2.0'
-    end
+The JAR files will be installed in `lib/ext` relative to the current directory.
 
-There is also a command line tool that can be used to install artifacts:
+To avoid having to specify the arguments to `pompompom` every time you can create a `.pompompom` file for your project. It must be a YAML file and can contain dependencies and alternate repositories:
 
-    $ pompompom com.rabbitmq:amqp-client:1.8.0 com.google.inject:guice:2.0
-    
-It too will download the artifacts and their dependencies into `lib` (relative to the current dir).
+    ---
+    repositories:
+      github-releases:  http://oss.sonatype.org/content/repositories/github-releases
+      clojars.org:      http://clojars.org/repo
+      twitter4j:        http://twitter4j.org/maven2
+    dependencies:
+      - storm:storm:0.7.1
 
-By default Pom Pom Pom will look in the main Maven repository, but you can add more repositories by editing `~/.pompompomrc` (which is created automatically on the first run), or passing `:repositories => [repo1, repo2]` to the `pompompom` function. 
+If you want to run Pom Pom Pom programmatically just look at how `bin/pompompom` works.
 
-By default downloaded artifacts and POM files are cached in `~/.pompompom`. You can override the cache dir by passing `:cache_dir => 'path/somewhere'`, and the target directory (where the JAR files are saved) by passing `:target_dir => 'path/somewhere'` -- or editing the corresponding keys in the config file. 
+## Why not use Maven, Ivy, Buildr or ruby-maven?
 
-Look in the `examples` directory to see a few ways to use Pom Pom Pom in a Rakefile.
+Maven makes me want to kill myself, Buildr isn't much better and ruby-maven just shells out to Maven. Ivy is too much XML but the programmatic interface is good, that's why its the basis for Pom Pom Pom. I also wanted a basis for integrating with Bundler, something that I'm hoping to be able to do in the future.
 
-## Why another dependency management tool, why not use Maven, Buildr, SBT or Ivy?
+Version 1 of Pom Pom Pom was written in pure Ruby and did its own POM parsing and dependency resolution, but that was in hindsight pretty insane, it's much better to just piggy back on someone else's stable and supported solution. Hence Ivy.
 
-Every time I look at Maven I cringe. Buildr is almost as bad, but hides some of the complexity. Simple Build Tool just isn't. Sure, they are all more than dependency managers, but that is part of the problem in my view. Ivy is better, but still too much noisy XML.
+## Copyright and license
 
-Pom Pom Pom is meant to do more or less what Ivy does, but in a way that doesn't make you want to tear out your eyes.
-
+See `LICENSE` in the project root.
