@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+$: << File.expand_path('../../lib', __FILE__)
+
+require 'bundler'
+require 'pompompom/bundler'
+
+load ENV['PATH'].split(File::PATH_SEPARATOR).map { |path| File.join(path, 'bundle') }.find { |path| File.exists?(path) }

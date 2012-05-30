@@ -10,87 +10,51 @@ module PomPomPom
       new.run(*args)
     end
 
-    def run(*args)
-      configure!
-      install_dependencies!(args.select { |a| a =~ /^[^:]+:[^:]+:[^:]+$/ })
+    def initialize
+      @installer = Installer.new(:repositories => create_repositories)
     end
 
-    def install(artifact)
-      ivy.install(
-        parse_module_id(artifact), 
-        ivy.settings.default_resolver.name, 
-        INSTALL_RESOLVER_NAME, 
-        install_options
-      )
+    def run(*coordinates)
+      create_coordinates(coordinates).each do |coordinate|
+        @installer.install(coordinate)
+      end
     end
 
   private
     
-    INSTALL_PATTERN = 'lib/ext/[module]-[artifact]-[revision].[ext]'.freeze
-    INSTALL_RESOLVER_NAME = 'install'.freeze
-
-    def configure!
-      if File.exists?('.pompompom')
-        @configuration = YAML.load(File.read('.pompompom'))
-        @configuration['repositories'] ||= {}
-        @configuration['dependencies'] ||= []
-        @configuration['repositories'].each do |name, url|
-          ivy.settings.add_resolver(create_maven_resolver(name, url, ivy.settings))
-        end
-      else
-        @configuration = {'repositories' => {}, 'dependencies' => []}
-      end
-    end
-
     def configuration
-      @configuration
-    end
-
-    def install_dependencies!(extra_dependencies)
-      all_dependencies = (configuration['dependencies'] + extra_dependencies).uniq
-      all_dependencies.each do |artifact|
-        install(artifact)
+      @configuration ||= begin
+        configuration = {:repositories => {}, :dependencies => []}
+        if File.exists?('.pompompom')
+          c = YAML.load(File.read('.pompompom'))
+          configuration[:repositories] = c['repositories'] if c['repositories']
+          configuration[:dependencies] = c['dependencies'] if c['dependencies']
+        end
+        configuration
       end
     end
 
-    def create_maven_resolver(name, url, settings)
-      resolver = Ivy::IBiblioResolver.new
-      resolver.name = name
-      resolver.root = url
-      resolver.settings = settings
-      resolver.set_m2compatible(true)
-      resolver
+    def create_coordinates(coordinates)
+      coordinates.map do |coordinate|
+        case coordinate
+        when MavenCoordinate
+          coordinate
+        when /^[^:]+:[^:]+:[^:]+$/
+          MavenCoordinate.parse(coordinate)
+        else
+          raise ArgumentError, %("#{coordinate}" could not be converted to a Maven coordinate)
+        end
+      end.compact
     end
 
-    def ivy
-      @ivy ||= begin
-        ivy = Ivy::Ivy.new_instance
-        ivy.configure_default
-        ivy.settings.add_resolver(install_resolver)
-        ivy
+    def create_repositories
+      configuration[:repositories].map do |name, url|
+        MavenRepository.new(name, url)
       end
-    end
-
-    def install_resolver
-      @install_resolver ||= begin
-        install_resolver = Ivy::FileSystemResolver.new
-        install_resolver.name = INSTALL_RESOLVER_NAME
-        install_resolver.add_ivy_pattern(File.expand_path(INSTALL_PATTERN))
-        install_resolver.add_artifact_pattern(File.expand_path(INSTALL_PATTERN))
-        install_resolver
-      end
-    end
-
-    def install_options
-      @install_options ||= begin
-        install_options = Ivy::InstallOptions.new
-        install_options.set_overwrite(true)
-        install_options
-      end
-    end
-
-    def parse_module_id(artifact)
-      Ivy::ModuleRevisionId.new_instance(*artifact.split(':'))
     end
   end
 end
+
+require 'pompompom/maven_repository'
+require 'pompompom/maven_coordinate'
+require 'pompompom/installer'
