@@ -1,3 +1,31 @@
 # Pom Pom Pom ♫
 
-TDOD: update for v2
+Pom Pom Pom is a dependency manager for JRuby projects that depend on Maven artifacts. It uses Ivy under the hood.
+
+You can use Pom Pom Pom from the command line:
+
+    pompompom com.rabbitmq:amqp-client:1.8.0 com.google.guava:guava:12.0
+
+The JAR files will be installed in `lib/ext` relative to the current directory.
+
+To avoid having to specify the arguments to `pompompom` every time you can create a `.pompompom` file for your project. It must be a YAML file and can contain dependencies and alternate repositories:
+
+    ---
+    repositories:
+      github-releases:  http://oss.sonatype.org/content/repositories/github-releases
+      clojars.org:      http://clojars.org/repo
+      twitter4j:        http://twitter4j.org/maven2
+    dependencies:
+      - storm:storm:0.7.1
+
+If you want to run Pom Pom Pom programmatically just look at how `bin/pompompom` works.
+
+## Why not use Maven, Ivy, Buildr or ruby-maven?
+
+Maven makes me want to kill myself, Buildr isn't much better and ruby-maven just shells out to Maven. Ivy is too much XML but the programmatic interface is good, that's why its the basis for Pom Pom Pom. I also wanted a basis for integrating with Bundler, something that I'm hoping to be able to do in the future.
+
+Version 1 of Pom Pom Pom was written in pure Ruby and did its own POM parsing and dependency resolution, but that was in hindsight pretty insane, it's much better to just piggy back on someone else's stable and supported solution. Hence Ivy.
+
+## Copyright and license
+
+See `LICENSE` in the project root.
