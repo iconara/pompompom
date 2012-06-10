@@ -3,7 +3,7 @@
 module PomPomPom
   class MavenCoordinate
     def self.parse(str)
-      str.split(':')
+      new(*str.split(':'))
     end
 
     attr_reader :group_id, :artifact_id, :version
