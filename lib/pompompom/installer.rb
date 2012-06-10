@@ -54,7 +54,7 @@ module PomPomPom
     end
 
     def install_pattern
-      @install_pattern ||= File.expand_path(@configuration[:install_pattern] || 'lib/ext/[module]-[artifact]-[revision].[ext]')
+      @configuration[:install_pattern]
     end
 
     def repositories
