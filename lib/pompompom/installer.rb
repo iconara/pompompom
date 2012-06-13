@@ -49,6 +49,7 @@ module PomPomPom
       @install_options ||= begin
         install_options = Ivy::InstallOptions.new
         install_options.set_overwrite(true)
+        install_options.set_artifact_filter(Ivy::FilterHelper.get_artifact_type_filter('jar,bundle'))
         install_options
       end
     end

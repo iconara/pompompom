@@ -9,5 +9,6 @@ module Ivy
   import 'org.apache.ivy.core.install.InstallOptions'
   import 'org.apache.ivy.plugins.resolver.FileSystemResolver'
   import 'org.apache.ivy.plugins.resolver.IBiblioResolver'
+  import 'org.apache.ivy.util.filter.FilterHelper'
 end
 
