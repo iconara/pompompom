@@ -1,6 +1,11 @@
+$: << File.expand_path('../lib', __FILE__)
+
+require 'pompompom/version'
+
+
 Gem::Specification.new do |s|
   s.name        = 'pompompom'
-  s.version     = '2.0.0.pre1'
+  s.version     = PomPomPom::VERSION
   s.platform    = 'java'
   s.authors     = ['Theo Hultberg']
   s.email       = ['theo@iconara.net']
