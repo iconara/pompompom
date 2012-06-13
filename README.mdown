@@ -8,23 +8,24 @@ You can use Pom Pom Pom from the command line:
 
 The JAR files will be installed in `lib/ext` relative to the current directory.
 
-To avoid having to specify the arguments to `pompompom` every time you can create a `.pompompom` file for your project. It must be a YAML file and can contain dependencies and alternate repositories:
+To avoid having to specify the arguments to `pompompom` every time you can create a `.pompompom` file for your project. It must be a YAML file and can contain dependencies, alternate repositories and a custom destination:
 
     ---
+    dependencies:
+      - storm:storm:0.7.1
     repositories:
       github-releases:  http://oss.sonatype.org/content/repositories/github-releases
       clojars.org:      http://clojars.org/repo
       twitter4j:        http://twitter4j.org/maven2
-    dependencies:
-      - storm:storm:0.7.1
+    destination: lib
 
 If you want to run Pom Pom Pom programmatically just look at how `bin/pompompom` works.
 
 ## Why not use Maven, Ivy, Buildr or ruby-maven?
 
-Maven makes me want to kill myself, Buildr isn't much better and ruby-maven just shells out to Maven. Ivy is too much XML but the programmatic interface is good, that's why its the basis for Pom Pom Pom. I also wanted a basis for integrating with Bundler, something that I'm hoping to be able to do in the future.
+Maven makes me want to kill myself, Buildr isn't much better and ruby-maven just shells out to Maven. Ivy is too much XML but the programmatic interface is good, that's why its the basis for Pom Pom Pom. I also wanted a basic library for integrating with Bundler, something that I'm hoping to be able to do in the future.
 
-Version 1 of Pom Pom Pom was written in pure Ruby and did its own POM parsing and dependency resolution, but that was in hindsight pretty insane, it's much better to just piggy back on someone else's stable and supported solution. Hence Ivy.
+Version 1 of Pom Pom Pom was written in pure Ruby and did its own POM parsing and dependency resolution, but that was in hindsight pretty insane, Maven's dependency resolution logic is, after all, almost turing complete. It's much better to just piggy back on someone else's stable and supported solution. Hence Ivy.
 
 ## Copyright and license
 
