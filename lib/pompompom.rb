@@ -34,9 +34,11 @@ module PomPomPom
         destination = c['destination'] if c['destination']
       end
       destination = extra_config[:destination] if extra_config[:destination]
+      repositories.merge!(extra_config[:repositories]) if extra_config[:repositories]
+      dependencies.concat(extra_config[:dependencies]).uniq! if extra_config[:dependencies]
       {
-        :repositories => create_repositories(repositories.merge(extra_config[:repositories])),
-        :dependencies => (dependencies + extra_config[:dependencies]).uniq,
+        :repositories => create_repositories(repositories),
+        :dependencies => dependencies,
         :install_pattern => File.expand_path("#{destination}/[artifact]-[revision]-[type].[ext]")
       }
     end
