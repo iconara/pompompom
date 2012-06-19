@@ -9,7 +9,22 @@ module PomPomPom
     attr_reader :group_id, :artifact_id, :version
 
     def initialize(*args)
-      @group_id, @artifact_id, @version = args
+      @group_id, @artifact_id, @version = args[0, 3]
+      @attributes = args[3..-1] || []
+    end
+
+    def attributes
+      hash = Hash[*@attributes.map{|attr| attr.split("=")}.flatten]
+      hash.merge(hash) do |k, v|
+        case v
+        when "false"
+          false
+        when "true"
+          true
+        else
+          v
+        end
+      end
     end
 
     begin :conversions

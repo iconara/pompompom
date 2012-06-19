@@ -15,7 +15,7 @@ module PomPomPom
         coordinate.to_ivy_module_id, 
         ivy.settings.default_resolver.name, 
         INSTALL_RESOLVER_NAME, 
-        install_options
+        install_options(coordinate.attributes)
       )
     end
 
@@ -45,13 +45,13 @@ module PomPomPom
       install_resolver
     end
 
-    def install_options
-      @install_options ||= begin
-        install_options = Ivy::InstallOptions.new
-        install_options.set_overwrite(true)
-        install_options.set_artifact_filter(Ivy::FilterHelper.get_artifact_type_filter('jar,bundle'))
-        install_options
-      end
+    def install_options(attributes)
+      defaulted = {"overwrite" => true, "transitive" => true}.merge(attributes)
+      install_options = Ivy::InstallOptions.new
+      install_options.set_overwrite(defaulted["overwrite"])
+      install_options.set_transitive(defaulted["transitive"])
+      install_options.set_artifact_filter(Ivy::FilterHelper.get_artifact_type_filter('jar,bundle'))
+      install_options
     end
 
     def install_pattern
