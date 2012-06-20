@@ -22,6 +22,11 @@ module PomPomPom
   private
 
     INSTALL_RESOLVER_NAME = 'install'.freeze
+    DEFAULT_INSTALL_ATTRIBUTES = {
+      :overwrite => true,
+      :transitive => true,
+      :type_filter => 'jar,bundle'.freeze
+    }.freeze
 
     def ivy
       @ivy ||= begin
@@ -46,11 +51,11 @@ module PomPomPom
     end
 
     def install_options(attributes)
-      defaulted = {"overwrite" => true, "transitive" => true}.merge(attributes)
+      attributes = DEFAULT_INSTALL_ATTRIBUTES.merge(attributes)
       install_options = Ivy::InstallOptions.new
-      install_options.set_overwrite(defaulted["overwrite"])
-      install_options.set_transitive(defaulted["transitive"])
-      install_options.set_artifact_filter(Ivy::FilterHelper.get_artifact_type_filter('jar,bundle'))
+      install_options.set_overwrite(attributes[:overwrite])
+      install_options.set_transitive(attributes[:transitive])
+      install_options.set_artifact_filter(Ivy::FilterHelper.get_artifact_type_filter(attributes[:type_filter]))
       install_options
     end
 

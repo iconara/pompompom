@@ -2,34 +2,44 @@
 
 module PomPomPom
   class MavenCoordinate
-    def self.parse(str)
-      new(*str.split(':'))
-    end
+    attr_reader :group_id, :artifact_id, :version, :attributes
 
-    attr_reader :group_id, :artifact_id, :version
+    def self.parse(str)
+      coordinate, attrs = str.split('|')
+      attributes = parse_attributes(attrs)
+      gid, aid, v = coordinate.split(':')
+      new(gid, aid, v, attributes)
+    end
 
     def initialize(*args)
-      @group_id, @artifact_id, @version = args[0, 3]
-      @attributes = args[3..-1] || []
-    end
-
-    def attributes
-      hash = Hash[*@attributes.map{|attr| attr.split("=")}.flatten]
-      hash.merge(hash) do |k, v|
-        case v
-        when "false"
-          false
-        when "true"
-          true
-        else
-          v
-        end
-      end
+      @group_id, @artifact_id, @version, @attributes = args
+      @attributes ||= {}
     end
 
     begin :conversions
+      def self.parse_attributes(attrs)
+        return {} unless attrs
+        pairs = attrs.split(',').map { |a| k, v = a.split('='); [k, v] }
+        pairs.map! do |k, v|
+          vv = begin
+            case v
+            when 'true' then true
+            when 'false' then false
+            else v
+            end
+          end
+          [k.to_sym, vv]
+        end
+        Hash[pairs]
+      end
+
       def to_s
-        "#{group_id}:#{artifact_id}:#{version}"
+        str = "#{group_id}:#{artifact_id}:#{version}"
+        unless attributes.empty?
+          attrs = attributes.map { |k, v| "#{k}=#{v}" }.join(',')
+          str << "|#{attrs}"
+        end
+        str
       end
 
       def to_ivy_module_id
